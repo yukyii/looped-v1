@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;min-height:100vh}
+body{font-family:Karla,sans-serif}
+@keyframes tetherPop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes tetherToast{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes tetherPulse{0%,100%{box-shadow:0 4px 16px rgba(255,138,92,.22)}50%{box-shadow:0 4px 24px rgba(255,138,92,.45)}}
+input,select,button{font-family:inherit}
+input:focus,select:focus{outline:2px solid rgba(58,44,40,.35);outline-offset:1px}
+::placeholder{color:rgba(58,44,40,.4)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:{{ bgGradient }};color:#3a2c28;transition:background 1.2s ease" data-screen-label="tether app">
+
+  <!-- ============ ONBOARDING ============ -->
+  <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px" data-screen-label="onboarding">
+      <div style="width:520px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(16px);border-radius:24px;padding:44px 48px;animation:tetherPop .45s ease">
+
+        <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font:900 34px Nunito,sans-serif;letter-spacing:-.02em">tether</div>
+            <div style="font:800 24px/1.25 Nunito,sans-serif">your friends are already out there. tag along. ☀️</div>
+            <div style="font:15px/1.55 Karla,sans-serif;color:rgba(58,44,40,.65)">post what you're up to — coffee, gym, a movie — and let friends jump in. no planning, no pressure.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+              <label for="ob-name" style="font:700 12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">what should friends call you?</label>
+              <input id="ob-name" value="{{ obName }}" onChange="{{ setObName }}" onKeyDown="{{ obNameKeyDown }}" placeholder="your first name" style="border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.7);border-radius:12px;padding:13px 16px;font:600 15px Karla,sans-serif;color:#3a2c28"></input>
+            </div>
+            <button onClick="{{ obNext }}" style="border:none;cursor:pointer;background:{{ accent }};color:#fff;font:800 15px Nunito,sans-serif;padding:14px 22px;border-radius:999px;margin-top:6px;box-shadow:0 3px 12px rgba(255,138,92,.4)">let's go</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font:800 24px/1.25 Nunito,sans-serif">what are you usually up for, {{ obNameShown }}?</div>
+            <div style="font:14px Karla,sans-serif;color:rgba(58,44,40,.65)">pick a few — we'll nudge you when friends post these.</div>
+            <div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:6px">
+              <sc-for list="{{ vibeOptions }}" as="vibe" hint-placeholder-count="8">
+                <button onClick="{{ vibe.toggle }}" style="cursor:pointer;border:1.5px solid {{ vibe.border }};background:{{ vibe.bg }};color:#3a2c28;font:700 13.5px Karla,sans-serif;padding:9px 15px;border-radius:999px">{{ vibe.label }}</button>
+              </sc-for>
+            </div>
+            <button onClick="{{ obNext }}" style="border:none;cursor:pointer;background:{{ accent }};color:#fff;font:800 15px Nunito,sans-serif;padding:14px 22px;border-radius:999px;margin-top:8px;box-shadow:0 3px 12px rgba(255,138,92,.4)">next</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ obStep3 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font:800 24px/1.25 Nunito,sans-serif">your people 💛</div>
+            <div style="font:14px Karla,sans-serif;color:rgba(58,44,40,.65)">a few friends are already on tether. add them so their days show up on your board.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+              <sc-for list="{{ obFriends }}" as="fr" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.55);border-radius:14px;padding:10px 14px">
+                  <div style="width:34px;height:34px;border-radius:50%;background:{{ fr.color }};display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;flex:none">{{ fr.initial }}</div>
+                  <div style="display:flex;flex-direction:column">
+                    <div style="font:800 14px Nunito,sans-serif">{{ fr.name }}</div>
+                    <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ fr.status }}</div>
+                  </div>
+                  <button onClick="{{ fr.toggle }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ fr.btnBg }};color:{{ fr.btnColor }};font:800 12px Nunito,sans-serif;padding:8px 15px;border-radius:999px">{{ fr.btnLabel }}</button>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ obFinish }}" style="border:none;cursor:pointer;background:{{ accent }};color:#fff;font:800 15px Nunito,sans-serif;padding:14px 22px;border-radius:999px;margin-top:8px;box-shadow:0 3px 12px rgba(255,138,92,.4)">take me to today</button>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;gap:7px;justify-content:center;margin-top:26px">
+          <sc-for list="{{ obDots }}" as="dot" hint-placeholder-count="3">
+            <div style="width:8px;height:8px;border-radius:50%;background:{{ dot.bg }}"></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ APP SHELL ============ -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+
+    <!-- nav -->
+    <div style="display:flex;align-items:center;gap:26px;padding:20px 44px 8px">
+      <div style="font:900 24px Nunito,sans-serif;letter-spacing:-.02em;cursor:pointer" onClick="{{ goToday }}">tether</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="4">
+          <button onClick="{{ tab.go }}" style="cursor:pointer;border:none;background:none;padding:4px 2px;font:{{ tab.weight }} 14px Karla,sans-serif;color:{{ tab.color }};border-bottom:2px solid {{ tab.underline }};display:flex;align-items:center;gap:5px">{{ tab.label }}<sc-if value="{{ tab.dot }}" hint-placeholder-val="{{ false }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ accent }};display:inline-block"></span></sc-if></button>
+        </sc-for>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div style="font:600 13px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ clockLine }}</div>
+        <div onClick="{{ goYou }}" style="width:34px;height:34px;border-radius:50%;background:#ffb37e;display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;cursor:pointer">{{ yourInitial }}</div>
+      </div>
+    </div>
+
+    <!-- ============ TODAY / BOARD ============ -->
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:18px 44px 60px;max-width:1180px;margin:0 auto" data-screen-label="today board">
+        <div style="font:800 32px/1.2 Nunito,sans-serif;letter-spacing:-.01em">{{ greeting }}</div>
+        <div style="font:15px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:6px">{{ subline }}</div>
+
+        <!-- timeline axis -->
+        <div style="margin-top:26px;display:flex;font:600 11px Karla,sans-serif;letter-spacing:.06em;color:rgba(58,44,40,.5)">
+          <sc-for list="{{ axis }}" as="seg" hint-placeholder-count="4">
+            <div style="flex:1;border-top:{{ seg.borderTop }};position:relative;padding-top:7px"><span style="color:{{ seg.color }}">{{ seg.label }}</span></div>
+          </sc-for>
+        </div>
+
+        <!-- board -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px;align-items:start">
+          <sc-for list="{{ buckets }}" as="col" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:12px;min-height:120px">
+              <sc-for list="{{ col.items }}" as="item" hint-placeholder-count="1">
+                <div style="background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:15px 16px;opacity:{{ item.opacity }};animation:{{ item.anim }};box-shadow:{{ item.shadow }}">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="font:{{ item.statusFont }};letter-spacing:.05em;color:{{ item.statusColor }}">{{ item.statusLine }}</div>
+                    <sc-if value="{{ item.isYours }}" hint-placeholder-val="{{ false }}"><div style="margin-left:auto;background:rgba(58,44,40,.1);font:700 10px Karla,sans-serif;padding:3px 8px;border-radius:999px;color:rgba(58,44,40,.65)">yours</div></sc-if>
+                  </div>
+                  <div style="font:800 16px Nunito,sans-serif;margin:5px 0 2px">{{ item.title }}</div>
+                  <div style="font:12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ item.byline }}</div>
+                  <sc-if value="{{ item.showFooter }}" hint-placeholder-val="{{ true }}">
+                    <div style="margin-top:12px;display:flex;align-items:center;gap:6px">
+                      <div style="display:flex">
+                        <sc-for list="{{ item.avatars }}" as="av" hint-placeholder-count="0">
+                          <div style="width:18px;height:18px;border-radius:50%;background:{{ av.color }};border:2px solid rgba(255,255,255,.9);margin-left:{{ av.ml }}"></div>
+                        </sc-for>
+                      </div>
+                      <div style="font:11.5px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ item.joinText }}</div>
+                      <sc-if value="{{ item.showBtn }}" hint-placeholder-val="{{ true }}">
+                        <button onClick="{{ item.toggleJoin }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ item.btnBg }};color:{{ item.btnColor }};font:800 11px Nunito,sans-serif;padding:7px 13px;border-radius:999px;flex:none">{{ item.btnLabel }}</button>
+                      </sc-if>
+                      <sc-if value="{{ item.showCancel }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ item.cancel }}" style="margin-left:auto;cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:rgba(58,44,40,.65);font:800 11px Nunito,sans-serif;padding:6px 12px;border-radius:999px;flex:none">call it off</button>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1.5px dashed rgba(58,44,40,.18);border-radius:16px;padding:18px;text-align:center;font:600 12px Karla,sans-serif;color:rgba(58,44,40,.4)">quiet for now 🌿</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ openComposer }}" style="margin-top:26px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;background:{{ accent }};color:#fff;border-radius:999px;padding:14px 22px;font:800 14.5px Nunito,sans-serif;box-shadow:0 3px 12px rgba(255,138,92,.4)">+ add yours to the board</button>
+      </div>
+    </sc-if>
+
+    <!-- ============ PINGS ============ -->
+    <sc-if value="{{ isPings }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:640px;margin:0 auto" data-screen-label="pings">
+        <div style="display:flex;align-items:baseline;gap:14px">
+          <div style="font:800 32px Nunito,sans-serif">pings</div>
+          <button onClick="{{ markAllRead }}" style="margin-left:auto;cursor:pointer;border:none;background:none;font:700 13px Karla,sans-serif;color:rgba(58,44,40,.55);text-decoration:underline">mark all read</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:20px">
+          <sc-for list="{{ pings }}" as="ping" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:13px;background:{{ ping.bg }};border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:14px 16px">
+              <div style="width:36px;height:36px;border-radius:50%;background:{{ ping.color }};display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;flex:none">{{ ping.initial }}</div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="font:600 13.5px/1.4 Karla,sans-serif">{{ ping.text }}</div>
+                <div style="font:11.5px Karla,sans-serif;color:rgba(58,44,40,.5)">{{ ping.when }}</div>
+              </div>
+              <sc-if value="{{ ping.hasAction }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ ping.act }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 11.5px Nunito,sans-serif;padding:8px 14px;border-radius:999px;flex:none">{{ ping.actionLabel }}</button>
+              </sc-if>
+              <sc-if value="{{ ping.unread }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-left:auto;width:8px;height:8px;border-radius:50%;background:{{ accent }};flex:none"></div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ FRIENDS ============ -->
+    <sc-if value="{{ isFriends }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:880px;margin:0 auto" data-screen-label="friends">
+        <div style="font:800 32px Nunito,sans-serif">your people</div>
+        <div style="font:14px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:5px">{{ friendCountLine }}</div>
+        <div style="margin-top:18px;display:flex;gap:10px">
+          <input value="{{ friendQuery }}" onChange="{{ setFriendQuery }}" placeholder="add a friend by name or @handle…" style="flex:1;border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.6);border-radius:999px;padding:12px 18px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <button onClick="{{ sendInvite }}" style="cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 13.5px Nunito,sans-serif;padding:12px 20px;border-radius:999px">invite</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:22px">
+          <sc-for list="{{ friendCards }}" as="fr" hint-placeholder-count="6">
+            <div style="background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:17px 17px 15px;display:flex;flex-direction:column;gap:3px">
+              <div style="width:44px;height:44px;border-radius:50%;background:{{ fr.color }};display:grid;place-items:center;font:800 17px Nunito,sans-serif;color:#fff;margin-bottom:7px">{{ fr.initial }}</div>
+              <div style="font:800 15.5px Nunito,sans-serif">{{ fr.name }}</div>
+              <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.5)">{{ fr.handle }}</div>
+              <div style="font:12.5px/1.45 Karla,sans-serif;color:rgba(58,44,40,.65);margin-top:5px">{{ fr.status }}</div>
+              <button onClick="{{ fr.ping }}" style="margin-top:11px;cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:#3a2c28;font:800 12px Nunito,sans-serif;padding:8px 14px;border-radius:999px;align-self:flex-start">👋 ping</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ YOU ============ -->
+    <sc-if value="{{ isYou }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:640px;margin:0 auto" data-screen-label="profile">
+        <div style="display:flex;align-items:center;gap:18px">
+          <div style="width:72px;height:72px;border-radius:50%;background:#ffb37e;display:grid;place-items:center;font:800 28px Nunito,sans-serif;color:#fff">{{ yourInitial }}</div>
+          <div>
+            <div style="font:800 28px Nunito,sans-serif">{{ yourName }}</div>
+            <div style="font:13px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ yourHandle }}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:26px;margin-top:22px;font:13px Karla,sans-serif;color:rgba(58,44,40,.6)">
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statPosted }}</span> posted</div>
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statJoined }}</span> joined</div>
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statFriends }}</span> friends</div>
+        </div>
+
+        <div style="margin-top:30px;font:800 17px Nunito,sans-serif">your board today</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+          <sc-for list="{{ yourPosts }}" as="post" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:13px 16px">
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <div style="font:800 14.5px Nunito,sans-serif">{{ post.title }}</div>
+                <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ post.meta }}</div>
+              </div>
+              <button onClick="{{ post.cancel }}" style="margin-left:auto;cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:rgba(58,44,40,.65);font:800 11.5px Nunito,sans-serif;padding:7px 13px;border-radius:999px">call it off</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1.5px dashed rgba(58,44,40,.18);border-radius:16px;padding:20px;text-align:center;font:600 13px Karla,sans-serif;color:rgba(58,44,40,.45)">nothing on the board yet — <span onClick="{{ openComposerFromYou }}" style="text-decoration:underline;cursor:pointer;color:#3a2c28">post something</span> ✨</div>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:30px;font:800 17px Nunito,sans-serif">the sky</div>
+        <div style="font:13px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:4px">tether's background follows the real time of day. peek at the other skies:</div>
+        <div style="display:flex;gap:9px;margin-top:12px">
+          <sc-for list="{{ skyChips }}" as="chip" hint-placeholder-count="4">
+            <button onClick="{{ chip.pick }}" style="cursor:pointer;border:1.5px solid {{ chip.border }};background:{{ chip.bg }};color:#3a2c28;font:700 12.5px Karla,sans-serif;padding:9px 15px;border-radius:999px">{{ chip.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:30px">
+          <button onClick="{{ resetApp }}" style="cursor:pointer;border:none;background:none;font:600 12.5px Karla,sans-serif;color:rgba(58,44,40,.45);text-decoration:underline;padding:0">start over (replay onboarding)</button>
+        </div>
+      </div>
+    </sc-if>
+
+  </sc-if>
+
+  <!-- ============ COMPOSER MODAL ============ -->
+  <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeComposer }}" style="position:fixed;inset:0;background:rgba(58,44,40,.25);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:50">
+      <div onClick="{{ stopProp }}" style="width:460px;background:rgba(255,251,246,.92);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(20px);border-radius:22px;padding:30px 32px;animation:tetherPop .35s ease" data-screen-label="composer">
+        <div style="font:800 21px Nunito,sans-serif">what are you up to?</div>
+        <div style="display:flex;gap:7px;margin-top:14px;flex-wrap:wrap">
+          <sc-for list="{{ emojiChips }}" as="em" hint-placeholder-count="8">
+            <button onClick="{{ em.pick }}" style="cursor:pointer;border:1.5px solid {{ em.border }};background:{{ em.bg }};font-size:17px;padding:7px 11px;border-radius:12px">{{ em.char }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+          <input value="{{ cTitle }}" onChange="{{ setCTitle }}" placeholder="grabbing boba, pickup soccer, library grind…" style="border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <input value="{{ cPlace }}" onChange="{{ setCPlace }}" placeholder="where?" style="border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <div style="display:flex;gap:10px">
+            <select value="{{ cTime }}" onChange="{{ setCTime }}" style="flex:1;border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px;font:600 14px Karla,sans-serif;color:#3a2c28">
+              <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="6">
+                <option value="{{ t.value }}">{{ t.label }}</option>
+              </sc-for>
+            </select>
+            <select value="{{ cSpots }}" onChange="{{ setCSpots }}" style="flex:1;border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px;font:600 14px Karla,sans-serif;color:#3a2c28">
+              <option value="0">open to everyone</option>
+              <option value="2">2 spots</option>
+              <option value="3">3 spots</option>
+              <option value="5">5 spots</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button onClick="{{ postActivity }}" style="cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 14px Nunito,sans-serif;padding:13px 22px;border-radius:999px;box-shadow:0 3px 12px rgba(255,138,92,.4)">post it</button>
+          <button onClick="{{ closeComposer }}" style="cursor:pointer;border:none;background:rgba(58,44,40,.08);color:#3a2c28;font:800 14px Nunito,sans-serif;padding:13px 20px;border-radius:999px">never mind</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TOAST ============ -->
+  <sc-if value="{{ toastShown }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(58,44,40,.92);color:#fff3e8;font:700 13.5px Karla,sans-serif;padding:12px 22px;border-radius:999px;animation:tetherToast .3s ease;z-index:60">{{ toastText }}</div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;timeOfDay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;morning&quot;,&quot;sunset&quot;,&quot;night&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'morning'|'sunset'|'night'&quot;,&quot;section&quot;:&quot;sky&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#ff8a5c&quot;,&quot;#f2679a&quot;,&quot;#8b7ff0&quot;,&quot;#2f9e77&quot;],&quot;default&quot;:&quot;#ff8a5c&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;brand&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: 'today',
+    name: '',
+    onboarded: false,
+    obStep: 1,
+    obName: '',
+    obVibes: [],
+    obAdded: ['kat', 'maya', 'dev', 'priya'],
+    joins: {},
+    gone: {},
+    posts: [],
+    composerOpen: false,
+    cTitle: '', cPlace: '', cTime: '', cSpots: '0', cEmoji: '',
+    toast: '',
+    pingsRead: false,
+    friendQuery: '',
+    skyOverride: 'auto',
+    nowTick: Date.now(),
+    loaded: false
+  };
+
+  componentDidMount() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('tether_state') || '{}');
+      this.setState({
+        name: saved.name || '',
+        onboarded: !!saved.onboarded,
+        view: saved.onboarded ? 'today' : 'onboarding',
+        joins: saved.joins || {},
+        posts: saved.posts || [],
+        skyOverride: saved.skyOverride || 'auto',
+        loaded: true
+      });
+    } catch (e) { this.setState({ view: 'onboarding', loaded: true }); }
+    this._clock = setInterval(() => this.setState({ nowTick: Date.now() }), 30000);
+  }
+  componentWillUnmount() { clearInterval(this._clock); this._toastT && clearTimeout(this._toastT); }
+
+  persist(extra) {
+    const s = { ...this.state, ...extra };
+    try {
+      localStorage.setItem('tether_state', JSON.stringify({
+        name: s.name, onboarded: s.onboarded, joins: s.joins, posts: s.posts, skyOverride: s.skyOverride
+      }));
+    } catch (e) {}
+  }
+  set(patch) { this.setState(patch, () => this.persist()); }
+
+  toast(msg) {
+    this.setState({ toast: msg });
+    this._toastT && clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  // ---------- time & sky ----------
+  nowHour() { const d = new Date(); return d.getHours() + d.getMinutes() / 60; }
+  mode() {
+    const p = this.props.timeOfDay;
+    if (p && p !== 'auto') return p;
+    if (this.state.skyOverride !== 'auto') return this.state.skyOverride;
+    const h = this.nowHour();
+    if (h >= 5 && h < 15) return 'morning';
+    if (h >= 15 && h < 20.5) return 'sunset';
+    return 'night';
+  }
+  gradient() {
+    return {
+      morning: 'linear-gradient(100deg,#ffe9c2 0%,#ffd7c9 55%,#ffd0dc 100%)',
+      sunset: 'linear-gradient(100deg,#ffd2a8 0%,#f7bcbe 55%,#f0b0c8 100%)',
+      night: 'linear-gradient(100deg,#b3bce8 0%,#ccbce8 55%,#e4cbee 100%)'
+    }[this.mode()];
+  }
+  fmt(h) {
+    const hr = Math.floor(h), m = Math.round((h - hr) * 60);
+    const ampm = hr >= 12 ? 'pm' : 'am';
+    let hh = hr % 12; if (hh === 0) hh = 12;
+    return hh + (m ? ':' + String(m).padStart(2, '0') : '') + ' ' + ampm;
+  }
+
+  // ---------- data ----------
+  friends() {
+    return [
+      { id: 'kat', name: 'kat', color: '#e0a878', handle: '@katgoes', status: 'usually up for coffee + thrifting' },
+      { id: 'maya', name: 'maya', color: '#a8c4e0', handle: '@mayarose', status: 'picnics, long walks, iced matcha' },
+      { id: 'dev', name: 'dev', color: '#9db8a4', handle: '@devlifts', status: 'gym rat, will spot you' },
+      { id: 'priya', name: 'priya', color: '#c9a8d8', handle: '@priyaflix', status: 'movie nights + late food runs' },
+      { id: 'theo', name: 'theo', color: '#d8a8a8', handle: '@theoooo', status: 'pickup soccer, board games' },
+      { id: 'sana', name: 'sana', color: '#a8c8c8', handle: '@sanastudies', status: 'library grinds, chai breaks' }
+    ];
+  }
+  friendById(id) { return this.friends().find(f => f.id === id); }
+
+  baseActivities() {
+    const now = this.nowHour();
+    const clamp = (h) => Math.max(8.25, Math.min(23.5, h));
+    return [
+      { id: 'a1', who: 'kat', emoji: '☕', what: 'coffee run', place: 'blue bottle, 3rd st', hour: clamp(now - 3), joined: ['maya', 'theo'], spots: 0 },
+      { id: 'a2', who: 'maya', emoji: '🧺', what: 'picnic on the quad', place: 'east lawn', hour: clamp(now - 0.2), joined: ['kat', 'theo'], spots: 4 },
+      { id: 'a3', who: 'sana', emoji: '📚', what: 'library grind', place: 'main library, fl 3', hour: clamp(now + 1.5), joined: [], spots: 0 },
+      { id: 'a4', who: 'dev', emoji: '🏋️', what: 'gym sesh', place: 'campus rec center', hour: clamp(now + 3.5), joined: [], spots: 2 },
+      { id: 'a5', who: 'priya', emoji: '🎬', what: 'movie night', place: 'dune part three, amc 12', hour: clamp(now + 6), joined: ['theo', 'maya', 'kat'], spots: 5 }
+    ];
+  }
+
+  allActivities() {
+    const posts = this.state.posts.map(p => ({ ...p, isYours: true }));
+    return this.baseActivities().concat(posts).filter(a => !this.state.gone[a.id]);
+  }
+
+  status(a) {
+    const now = this.nowHour();
+    if (now > a.hour + 1.25) return 'wrapped';
+    if (now >= a.hour - 0.25) return 'now';
+    return 'open';
+  }
+
+  // ---------- renderVals ----------
+  renderVals() {
+    const S = this.state;
+    const accent = this.props.accent ?? '#ff8a5c';
+    const mode = this.mode();
+    const now = this.nowHour();
+    const name = S.name || 'you';
+    const isOnboarding = S.view === 'onboarding';
+
+    // greeting
+    const greeting = mode === 'morning' ? 'good morning, ' + name + ' ☀️'
+      : mode === 'sunset' ? 'golden hour, ' + name + ' 🌅'
+      : 'night owl hours, ' + name + ' 🌙';
+
+    // activities → display items
+    const acts = this.allActivities().map(a => {
+      const st = this.status(a);
+      const youIn = !!S.joins[a.id];
+      const joined = a.joined.slice();
+      const joinedCount = joined.length + (youIn ? 1 : 0);
+      const fr = this.friendById(a.who);
+      const whoName = a.isYours ? 'you' : (fr ? fr.name : a.who);
+      const wrapped = st === 'wrapped';
+      const spotsLeft = a.spots ? a.spots - joinedCount : 0;
+      let joinText;
+      if (wrapped) joinText = joinedCount ? joinedCount + ' went' : 'quiet one';
+      else if (youIn) joinText = joinedCount === 1 ? "you're in" : 'you + ' + (joinedCount - 1) + ' in';
+      else if (joinedCount === 0) joinText = a.isYours ? 'no one yet' : 'be the first 👀';
+      else joinText = joinedCount + ' in' + (a.spots && spotsLeft > 0 ? ' · ' + spotsLeft + ' spots left' : '');
+      const statusLine = wrapped ? this.fmt(a.hour) + ' · wrapped'
+        : st === 'now' ? 'happening now'
+        : this.fmt(a.hour) + (a.hour >= 20 ? ' · tonight' : '');
+      return {
+        id: a.id, hour: a.hour,
+        title: a.what + ' ' + a.emoji,
+        byline: whoName + ' · ' + a.place,
+        isYours: !!a.isYours,
+        opacity: wrapped ? '.55' : '1',
+        anim: st === 'now' ? 'tetherPulse 2.6s ease infinite' : 'none',
+        shadow: st === 'now' ? '0 4px 16px rgba(255,138,92,.25)' : 'none',
+        statusLine,
+        statusColor: st === 'now' ? '#e0562a' : 'rgba(58,44,40,.5)',
+        statusFont: st === 'now' ? "800 11px Nunito,sans-serif" : "600 11px Karla,sans-serif",
+        showFooter: !wrapped,
+        avatars: joined.slice(0, 3).map((j, i) => {
+          const f = this.friendById(j);
+          return { color: f ? f.color : '#ccc', ml: i === 0 ? '0' : '-6px' };
+        }),
+        joinText,
+        showBtn: !a.isYours,
+        btnLabel: youIn ? "you're in ✓" : "i'm in",
+        btnBg: youIn ? '#3a2c28' : accent,
+        btnColor: youIn ? '#ffe9c2' : '#fff',
+        toggleJoin: () => {
+          const joins = { ...this.state.joins, [a.id]: !youIn };
+          this.set({ joins });
+          this.toast(!youIn ? "you're in — " + whoName + " will be stoked 🎉" : 'no worries, backed out quietly');
+        },
+        showCancel: !!a.isYours,
+        cancel: () => {
+          this.set({ gone: { ...this.state.gone, [a.id]: true }, posts: this.state.posts.filter(p => p.id !== a.id) });
+          this.toast('called off — friends were told 💛');
+        }
+      };
+    });
+
+    // buckets: 8-12 / 12-5 / 5-9 / 9+
+    const edges = [[0, 12], [12, 17], [17, 21], [21, 25]];
+    const buckets = edges.map(([lo, hi]) => {
+      const items = acts.filter(a => a.hour >= lo && a.hour < hi).sort((x, y) => x.hour - y.hour);
+      return { items, empty: items.length === 0 };
+    });
+
+    // axis
+    const segs = [['8 am', 8, 12], ['noon', 12, 17], ['5 pm', 17, 21], ['9 pm', 21, 25]];
+    const axis = segs.map(([label, lo, hi]) => {
+      const active = now >= lo && now < hi;
+      return {
+        label: active ? label + ' ●' : label,
+        borderTop: active ? '2px solid rgba(58,44,40,.55)' : '2px dotted rgba(58,44,40,.3)',
+        color: active ? '#3a2c28' : 'rgba(58,44,40,.5)'
+      };
+    });
+
+    // live count
+    const liveActs = acts.filter(a => a.opacity === '1' && !a.isYours);
+    const subline = liveActs.length
+      ? liveActs.length + (liveActs.length === 1 ? ' friend is' : ' friends are') + ' out doing things — tap in whenever'
+      : 'nothing on the board yet — start something';
+
+    // clock line
+    const d = new Date();
+    const days = ['sun','mon','tue','wed','thu','fri','sat'];
+    const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const clockLine = days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate() + ' · ' + this.fmt(now);
+
+    // nav
+    const unread = S.pingsRead ? 0 : 2;
+    const tabs = [['today', 'today'], ['friends', 'friends'], ['pings', 'pings'], ['you', 'you']];
+    const navTabs = tabs.map(([label, v]) => ({
+      label,
+      dot: v === 'pings' && unread > 0,
+      weight: S.view === v ? '700' : '600',
+      color: S.view === v ? '#3a2c28' : 'rgba(58,44,40,.55)',
+      underline: S.view === v ? '#3a2c28' : 'transparent',
+      go: () => this.setState({ view: v })
+    }));
+
+    // pings
+    const pings = [
+      { who: 'maya', text: 'maya pinged you: "picnic on the quad rn, come thru 🧺"', when: '12 min ago', action: 'i\'m in', actId: 'a2', unread: true },
+      { who: 'kat', text: 'kat + theo joined maya\'s picnic', when: '25 min ago', unread: true },
+      { who: 'priya', text: 'priya posted movie night 🎬 — dune part three, 8 pm', when: '1 hr ago', action: 'i\'m in', actId: 'a5' },
+      { who: 'dev', text: 'dev pinged you: "gym later? need a spotter 🏋️"', when: '2 hrs ago', action: 'i\'m in', actId: 'a4' },
+      { who: 'theo', text: 'theo added you on tether — say hi 👋', when: 'yesterday' }
+    ].map(p => {
+      const f = this.friendById(p.who);
+      const youIn = p.actId && !!S.joins[p.actId];
+      return {
+        text: p.text, when: p.when,
+        initial: p.who[0].toUpperCase(), color: f.color,
+        bg: p.unread && !S.pingsRead ? 'rgba(255,255,255,.65)' : 'rgba(255,255,255,.42)',
+        unread: !!p.unread && !S.pingsRead,
+        hasAction: !!p.action && !youIn,
+        actionLabel: p.action,
+        act: () => {
+          if (p.actId) {
+            this.set({ joins: { ...this.state.joins, [p.actId]: true } });
+            this.toast("you're in 🎉 it's on your board");
+          }
+        }
+      };
+    });
+
+    // friends page
+    const friendCards = this.friends().map(f => ({
+      ...f,
+      initial: f.name[0].toUpperCase(),
+      ping: () => this.toast('pinged ' + f.name + ' 👋 they\'ll get a nudge')
+    }));
+
+    // onboarding
+    const vibes = ['☕ coffee', '🏋️ gym', '📚 study', '🎬 movies', '🍜 food runs', '🚶 walks', '🎮 games', '⚽ pickup sports'];
+    const vibeOptions = vibes.map(v => {
+      const on = S.obVibes.includes(v);
+      return {
+        label: v,
+        bg: on ? 'rgba(255,138,92,.18)' : 'rgba(255,255,255,.55)',
+        border: on ? accent : 'rgba(58,44,40,.18)',
+        toggle: () => this.setState({ obVibes: on ? S.obVibes.filter(x => x !== v) : S.obVibes.concat(v) })
+      };
+    });
+    const obFriends = this.friends().slice(0, 4).map(f => {
+      const added = S.obAdded.includes(f.id);
+      return {
+        name: f.name, status: f.status, color: f.color, initial: f.name[0].toUpperCase(),
+        btnLabel: added ? 'added ✓' : '+ add',
+        btnBg: added ? '#3a2c28' : 'rgba(58,44,40,.08)',
+        btnColor: added ? '#ffe9c2' : '#3a2c28',
+        toggle: () => this.setState({ obAdded: added ? S.obAdded.filter(x => x !== f.id) : S.obAdded.concat(f.id) })
+      };
+    });
+    const obDots = [1, 2, 3].map(n => ({ bg: n === S.obStep ? '#3a2c28' : 'rgba(58,44,40,.2)' }));
+
+    // composer
+    const emojis = ['☕', '🏋️', '🎬', '🍜', '📚', '🚶', '🎮', '🧺', '🎳', '🍦'];
+    const emojiChips = emojis.map(e => ({
+      char: e,
+      bg: S.cEmoji === e ? 'rgba(255,138,92,.2)' : 'rgba(255,255,255,.7)',
+      border: S.cEmoji === e ? accent : 'rgba(58,44,40,.15)',
+      pick: () => this.setState({ cEmoji: this.state.cEmoji === e ? '' : e })
+    }));
+    const timeOptions = [];
+    let t = Math.ceil(now * 2) / 2 + 0.5;
+    for (let i = 0; i < 10 && t < 24; i++, t += 1) {
+      timeOptions.push({ value: String(t), label: t === timeOptions[0]?.value ? this.fmt(t) : this.fmt(t) });
+    }
+    if (!timeOptions.length) timeOptions.push({ value: '20', label: this.fmt(20) });
+
+    // your posts
+    const yourPosts = S.posts.filter(p => !S.gone[p.id]).map(p => ({
+      title: p.what + ' ' + p.emoji,
+      meta: this.fmt(p.hour) + ' · ' + p.place,
+      cancel: () => {
+        this.set({ posts: this.state.posts.filter(x => x.id !== p.id) });
+        this.toast('called off — friends were told 💛');
+      }
+    }));
+
+    // sky chips
+    const skies = [['auto', 'auto ✨'], ['morning', 'morning ☀️'], ['sunset', 'sunset 🌅'], ['night', 'night 🌙']];
+    const skyChips = skies.map(([v, label]) => {
+      const on = S.skyOverride === v;
+      return {
+        label,
+        bg: on ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.4)',
+        border: on ? '#3a2c28' : 'rgba(58,44,40,.18)',
+        pick: () => this.set({ skyOverride: v })
+      };
+    });
+
+    return {
+      accent,
+      bgGradient: this.gradient(),
+      isOnboarding,
+      isApp: !isOnboarding,
+      isToday: S.view === 'today',
+      isFriends: S.view === 'friends',
+      isPings: S.view === 'pings',
+      isYou: S.view === 'you',
+
+      // onboarding
+      obStep1: S.obStep === 1, obStep2: S.obStep === 2, obStep3: S.obStep === 3,
+      obName: S.obName,
+      obNameShown: S.obName.trim() || 'friend',
+      setObName: (e) => this.setState({ obName: e.target.value }),
+      obNameKeyDown: (e) => { if (e.key === 'Enter') this.obNextFn(); },
+      obNext: () => this.obNextFn(),
+      obFinish: () => {
+        this.setState({ name: this.state.obName.trim() || 'sam', onboarded: true, view: 'today' }, () => this.persist());
+        this.toast('welcome to tether 💛 here\'s today');
+      },
+      vibeOptions, obFriends, obDots,
+
+      // nav + shell
+      navTabs, clockLine,
+      yourInitial: (name[0] || 'y').toUpperCase(),
+      goToday: () => this.setState({ view: 'today' }),
+      goYou: () => this.setState({ view: 'you' }),
+
+      // today
+      greeting, subline, axis, buckets,
+      openComposer: () => this.setState({ composerOpen: true }),
+
+      // pings
+      pings,
+      markAllRead: () => this.setState({ pingsRead: true }),
+
+      // friends
+      friendCountLine: this.friends().length + ' friends on tether · ' + liveActs.length + ' out right now',
+      friendQuery: S.friendQuery,
+      setFriendQuery: (e) => this.setState({ friendQuery: e.target.value }),
+      sendInvite: () => {
+        if (!S.friendQuery.trim()) { this.toast('type a name first 🙂'); return; }
+        this.toast('invite sent to ' + S.friendQuery.trim() + ' ✉️');
+        this.setState({ friendQuery: '' });
+      },
+      friendCards,
+
+      // you
+      yourName: name,
+      yourHandle: '@' + name.toLowerCase().replace(/\s+/g, ''),
+      statPosted: S.posts.length,
+      statJoined: Object.values(S.joins).filter(Boolean).length,
+      statFriends: this.friends().length,
+      yourPosts,
+      noPosts: yourPosts.length === 0,
+      openComposerFromYou: () => this.setState({ composerOpen: true, view: 'today' }),
+      skyChips,
+      resetApp: () => {
+        try { localStorage.removeItem('tether_state'); } catch (e) {}
+        this.setState({ name: '', onboarded: false, view: 'onboarding', obStep: 1, obName: '', obVibes: [], joins: {}, posts: [], gone: {}, skyOverride: 'auto', pingsRead: false });
+      },
+
+      // composer
+      composerOpen: S.composerOpen,
+      closeComposer: () => this.setState({ composerOpen: false }),
+      stopProp: (e) => e.stopPropagation(),
+      cTitle: S.cTitle, setCTitle: (e) => this.setState({ cTitle: e.target.value }),
+      cPlace: S.cPlace, setCPlace: (e) => this.setState({ cPlace: e.target.value }),
+      cTime: S.cTime || (timeOptions[0] && timeOptions[0].value), setCTime: (e) => this.setState({ cTime: e.target.value }),
+      cSpots: S.cSpots, setCSpots: (e) => this.setState({ cSpots: e.target.value }),
+      emojiChips, timeOptions,
+      postActivity: () => {
+        const what = S.cTitle.trim();
+        if (!what) { this.toast('say what you\'re up to first 🙂'); return; }
+        const post = {
+          id: 'p' + Date.now(),
+          who: 'you',
+          emoji: S.cEmoji || '✨',
+          what,
+          place: S.cPlace.trim() || 'somewhere good',
+          hour: parseFloat(S.cTime || (timeOptions[0] && timeOptions[0].value) || '20'),
+          joined: [], spots: parseInt(S.cSpots, 10) || 0
+        };
+        this.setState({
+          posts: this.state.posts.concat(post),
+          composerOpen: false, cTitle: '', cPlace: '', cEmoji: '', cSpots: '0', view: 'today'
+        }, () => this.persist());
+        this.toast('it\'s on the board — friends can tap in 🎉');
+      },
+
+      // toast
+      toastShown: !!S.toast,
+      toastText: S.toast
+    };
+  }
+
+  obNextFn() {
+    if (this.state.obStep === 1 && !this.state.obName.trim()) { this.toast('tell us your name first 🙂'); return; }
+    this.setState({ obStep: Math.min(3, this.state.obStep + 1) });
+  }
+}
+
+</script>
+</body>
+</html>

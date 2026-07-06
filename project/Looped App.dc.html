@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;min-height:100vh}
+body{font-family:Karla,sans-serif}
+@keyframes loopPop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes loopSheet{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes loopPanel{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:none}}
+@keyframes loopToast{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes loopPulse{0%,100%{box-shadow:0 4px 16px rgba(255,138,92,.22)}50%{box-shadow:0 4px 24px rgba(255,138,92,.45)}}
+input,select,button{font-family:inherit}
+input:focus,select:focus{outline:2px solid rgba(58,44,40,.35);outline-offset:1px}
+::placeholder{color:rgba(58,44,40,.4)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:{{ bgGradient }};color:#3a2c28;transition:background 1.2s ease" data-screen-label="looped app">
+
+  <!-- ============ ONBOARDING ============ -->
+  <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px" data-screen-label="onboarding">
+      <div style="width:520px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(16px);border-radius:24px;padding:44px 48px;animation:loopPop .45s ease">
+
+        <sc-if value="{{ obStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font:900 34px Nunito,sans-serif;letter-spacing:-.02em">looped</div>
+            <div style="font:800 24px/1.25 Nunito,sans-serif">your friends are already out there. tag along. ☀️</div>
+            <div style="font:15px/1.55 Karla,sans-serif;color:rgba(58,44,40,.65)">let's set you up — this is how friends will find you.</div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <label style="font:700 12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">first name</label>
+                <input value="{{ obFirst }}" onChange="{{ setObFirst }}" placeholder="jane" style="border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.7);border-radius:12px;padding:13px 16px;font:600 15px Karla,sans-serif;color:#3a2c28"></input>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <label style="font:700 12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">last name</label>
+                <input value="{{ obLast }}" onChange="{{ setObLast }}" placeholder="doe" style="border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.7);border-radius:12px;padding:13px 16px;font:600 15px Karla,sans-serif;color:#3a2c28"></input>
+              </div>
+            </div>
+            <sc-if value="{{ obHasName }}" hint-placeholder-val="{{ false }}">
+              <div style="font:600 12.5px Karla,sans-serif;color:rgba(58,44,40,.55);margin-top:-4px">friends will see you as <b style="color:#3a2c28">{{ obPreviewName }}</b></div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:2px">
+              <label style="font:700 12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">phone number</label>
+              <input value="{{ obPhone }}" onChange="{{ setObPhone }}" onKeyDown="{{ obNameKeyDown }}" inputmode="tel" placeholder="(555) 123-4567" style="border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.7);border-radius:12px;padding:13px 16px;font:600 15px Karla,sans-serif;color:#3a2c28"></input>
+              <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.5)">friends can add you by number. we'll never post it.</div>
+            </div>
+            <button onClick="{{ obNext }}" style="border:none;cursor:pointer;background:{{ accent }};color:#fff;font:800 15px Nunito,sans-serif;padding:14px 22px;border-radius:999px;margin-top:6px;box-shadow:0 3px 12px rgba(255,138,92,.4)">let's go</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ obStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font:800 24px/1.25 Nunito,sans-serif">your people 💛</div>
+            <div style="font:14px Karla,sans-serif;color:rgba(58,44,40,.65)">a few friends are already on looped. add them so their days show up on your board.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+              <sc-for list="{{ obFriends }}" as="fr" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.55);border-radius:14px;padding:10px 14px">
+                  <div style="width:34px;height:34px;border-radius:50%;background:{{ fr.color }};display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;flex:none">{{ fr.initial }}</div>
+                  <div style="display:flex;flex-direction:column">
+                    <div style="font:800 14px Nunito,sans-serif">{{ fr.name }}</div>
+                    <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ fr.bio }}</div>
+                  </div>
+                  <button onClick="{{ fr.toggle }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ fr.btnBg }};color:{{ fr.btnColor }};font:800 12px Nunito,sans-serif;padding:8px 15px;border-radius:999px">{{ fr.btnLabel }}</button>
+                </div>
+              </sc-for>
+            </div>
+            <button onClick="{{ obFinish }}" style="border:none;cursor:pointer;background:{{ accent }};color:#fff;font:800 15px Nunito,sans-serif;padding:14px 22px;border-radius:999px;margin-top:8px;box-shadow:0 3px 12px rgba(255,138,92,.4)">take me to today</button>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;gap:7px;justify-content:center;margin-top:26px">
+          <sc-for list="{{ obDots }}" as="dot" hint-placeholder-count="2">
+            <div style="width:8px;height:8px;border-radius:50%;background:{{ dot.bg }}"></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ APP SHELL ============ -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+
+    <!-- nav -->
+    <div style="display:flex;align-items:center;gap:26px;padding:20px 44px 8px">
+      <div style="font:900 24px Nunito,sans-serif;letter-spacing:-.02em;cursor:pointer" onClick="{{ goToday }}">looped</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <sc-for list="{{ navTabs }}" as="tab" hint-placeholder-count="4">
+          <button onClick="{{ tab.go }}" style="cursor:pointer;border:none;background:none;padding:4px 2px;font:{{ tab.weight }} 14px Karla,sans-serif;color:{{ tab.color }};border-bottom:2px solid {{ tab.underline }};display:flex;align-items:center;gap:5px">{{ tab.label }}<sc-if value="{{ tab.dot }}" hint-placeholder-val="{{ false }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ accent }};display:inline-block"></span></sc-if></button>
+        </sc-for>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div style="font:600 13px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ clockLine }}</div>
+        <div onClick="{{ goYou }}" style="width:34px;height:34px;border-radius:50%;background:#ffb37e;display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;cursor:pointer">{{ yourInitial }}</div>
+      </div>
+    </div>
+
+    <!-- ============ TODAY / BOARD ============ -->
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:18px 44px 60px;max-width:1180px;margin:0 auto" data-screen-label="today board">
+        <div style="font:800 32px/1.2 Nunito,sans-serif;letter-spacing:-.01em">{{ greeting }}</div>
+        <div style="font:15px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:6px">{{ subline }}</div>
+
+        <!-- timeline axis -->
+        <div style="margin-top:26px;display:flex;font:600 11px Karla,sans-serif;letter-spacing:.06em;color:rgba(58,44,40,.5)">
+          <sc-for list="{{ axis }}" as="seg" hint-placeholder-count="4">
+            <div style="flex:1;border-top:{{ seg.borderTop }};position:relative;padding-top:7px"><span style="color:{{ seg.color }}">{{ seg.label }}</span></div>
+          </sc-for>
+        </div>
+
+        <!-- board -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px;align-items:start">
+          <sc-for list="{{ buckets }}" as="col" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:12px;min-height:120px">
+              <sc-for list="{{ col.items }}" as="item" hint-placeholder-count="1">
+                <div onClick="{{ item.open }}" style="cursor:pointer;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:15px 16px;opacity:{{ item.opacity }};animation:{{ item.anim }};box-shadow:{{ item.shadow }}" style-hover="border-color:rgba(58,44,40,.3)">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="font:{{ item.statusFont }};letter-spacing:.05em;color:{{ item.statusColor }}">{{ item.statusLine }}</div>
+                    <sc-if value="{{ item.isYours }}" hint-placeholder-val="{{ false }}"><div style="margin-left:auto;background:rgba(58,44,40,.1);font:700 10px Karla,sans-serif;padding:3px 8px;border-radius:999px;color:rgba(58,44,40,.65)">yours</div></sc-if>
+                  </div>
+                  <div style="font:800 16px Nunito,sans-serif;margin:5px 0 2px">{{ item.title }}</div>
+                  <div style="font:12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ item.whoLine }}</div>
+                  <sc-if value="{{ item.hasNote }}" hint-placeholder-val="{{ true }}">
+                    <div style="font:italic 400 12.5px/1.4 Karla,sans-serif;color:rgba(58,44,40,.65);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"{{ item.note }}"</div>
+                  </sc-if>
+                  <sc-if value="{{ item.showFooter }}" hint-placeholder-val="{{ true }}">
+                    <div style="margin-top:12px;display:flex;align-items:center;gap:6px">
+                      <div style="display:flex">
+                        <sc-for list="{{ item.avatars }}" as="av" hint-placeholder-count="0">
+                          <div style="width:18px;height:18px;border-radius:50%;background:{{ av.color }};border:2px solid rgba(255,255,255,.9);margin-left:{{ av.ml }}"></div>
+                        </sc-for>
+                      </div>
+                      <div style="font:11.5px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ item.joinText }}</div>
+                      <sc-if value="{{ item.showBtn }}" hint-placeholder-val="{{ true }}">
+                        <button onClick="{{ item.toggleJoin }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ item.btnBg }};color:{{ item.btnColor }};font:800 11px Nunito,sans-serif;padding:7px 13px;border-radius:999px;flex:none">{{ item.btnLabel }}</button>
+                      </sc-if>
+                      <sc-if value="{{ item.showCancel }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ item.cancel }}" style="margin-left:auto;cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:rgba(58,44,40,.65);font:800 11px Nunito,sans-serif;padding:6px 12px;border-radius:999px;flex:none">call it off</button>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1.5px dashed rgba(58,44,40,.18);border-radius:16px;padding:18px;text-align:center;font:600 12px Karla,sans-serif;color:rgba(58,44,40,.4)">quiet for now 🌿</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ openComposer }}" style="margin-top:26px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;background:{{ accent }};color:#fff;border-radius:999px;padding:14px 22px;font:800 14.5px Nunito,sans-serif;box-shadow:0 3px 12px rgba(255,138,92,.4)">+ add yours to the board</button>
+
+        <!-- later this week -->
+        <div style="margin-top:44px;font:800 20px Nunito,sans-serif">later this week</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;max-width:720px">
+          <sc-for list="{{ weekItems }}" as="wk" hint-placeholder-count="3">
+            <div onClick="{{ wk.open }}" style="cursor:pointer;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:14px 18px" style-hover="border-color:rgba(58,44,40,.3)">
+              <div style="width:40px;height:40px;border-radius:50%;background:{{ wk.color }};display:grid;place-items:center;font:800 15px Nunito,sans-serif;color:#fff;flex:none">{{ wk.initial }}</div>
+              <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                <div style="font:800 15px Nunito,sans-serif">{{ wk.title }}</div>
+                <div style="font:12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ wk.meta }}</div>
+                <div style="font:italic 400 12.5px Karla,sans-serif;color:rgba(58,44,40,.65);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"{{ wk.note }}"</div>
+              </div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex:none">
+                <div style="font:600 12px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ wk.goingText }}</div>
+                <div style="font:800 15px Nunito,sans-serif;color:rgba(58,44,40,.35)">›</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ PINGS ============ -->
+    <sc-if value="{{ isPings }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:640px;margin:0 auto" data-screen-label="pings">
+        <div style="display:flex;align-items:baseline;gap:14px">
+          <div style="font:800 32px Nunito,sans-serif">pings</div>
+          <button onClick="{{ markAllRead }}" style="margin-left:auto;cursor:pointer;border:none;background:none;font:700 13px Karla,sans-serif;color:rgba(58,44,40,.55);text-decoration:underline">mark all read</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:20px">
+          <sc-for list="{{ pings }}" as="ping" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:13px;background:{{ ping.bg }};border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:14px 16px">
+              <div style="width:36px;height:36px;border-radius:50%;background:{{ ping.color }};display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;flex:none">{{ ping.initial }}</div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <div style="font:600 13.5px/1.4 Karla,sans-serif">{{ ping.text }}</div>
+                <div style="font:11.5px Karla,sans-serif;color:rgba(58,44,40,.5)">{{ ping.when }}</div>
+              </div>
+              <sc-if value="{{ ping.hasAction }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ ping.act }}" style="margin-left:auto;cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 11.5px Nunito,sans-serif;padding:8px 14px;border-radius:999px;flex:none">{{ ping.actionLabel }}</button>
+              </sc-if>
+              <sc-if value="{{ ping.going }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-left:auto;background:#3a2c28;color:#ffe9c2;font:800 11.5px Nunito,sans-serif;padding:8px 14px;border-radius:999px;flex:none">going ✓</div>
+              </sc-if>
+              <sc-if value="{{ ping.unread }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-left:auto;width:8px;height:8px;border-radius:50%;background:{{ accent }};flex:none"></div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ FRIENDS ============ -->
+    <sc-if value="{{ isFriends }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:880px;margin:0 auto" data-screen-label="friends">
+        <div style="font:800 32px Nunito,sans-serif">your people</div>
+        <div style="font:14px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:5px">{{ friendCountLine }}</div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px">
+            <input value="{{ friendQuery }}" onChange="{{ setFriendQuery }}" onKeyDown="{{ inviteKeyDown }}" inputmode="tel" placeholder="add a friend by phone number…" style="flex:1;border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.6);border-radius:999px;padding:12px 18px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+            <button onClick="{{ sendInvite }}" style="cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 13.5px Nunito,sans-serif;padding:12px 20px;border-radius:999px">invite</button>
+          </div>
+          <sc-if value="{{ contactsLinked }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:10px">
+              <input value="{{ contactQuery }}" onChange="{{ setContactQuery }}" onKeyDown="{{ searchKeyDown }}" placeholder="search your contacts by name…" style="flex:1;border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.6);border-radius:999px;padding:12px 18px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+              <button onClick="{{ searchContacts }}" style="cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:#3a2c28;font:800 13.5px Nunito,sans-serif;padding:12px 20px;border-radius:999px">search</button>
+            </div>
+            <div style="font:600 12px Karla,sans-serif;color:rgba(58,44,40,.5)">📇 contacts linked — search by name is on</div>
+          </sc-if>
+          <sc-if value="{{ contactsNotLinked }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ linkContacts }}" style="cursor:pointer;border:1.5px dashed rgba(58,44,40,.28);background:rgba(255,255,255,.4);color:#3a2c28;font:700 13px Karla,sans-serif;padding:11px 18px;border-radius:999px;align-self:flex-start">📇 link contacts to search friends by name</button>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:22px">
+          <sc-for list="{{ friendCards }}" as="fr" hint-placeholder-count="6">
+            <div style="background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:17px 17px 15px;display:flex;flex-direction:column;gap:3px">
+              <div style="width:44px;height:44px;border-radius:50%;background:{{ fr.color }};display:grid;place-items:center;font:800 17px Nunito,sans-serif;color:#fff;margin-bottom:7px">{{ fr.initial }}</div>
+              <div style="font:800 15.5px Nunito,sans-serif">{{ fr.name }}</div>
+              <div style="font:12.5px/1.45 Karla,sans-serif;color:rgba(58,44,40,.65);margin-top:4px">{{ fr.bio }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ YOU ============ -->
+    <sc-if value="{{ isYou }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 44px 60px;max-width:640px;margin:0 auto" data-screen-label="profile">
+        <div style="display:flex;align-items:center;gap:18px">
+          <div style="width:72px;height:72px;border-radius:50%;background:#ffb37e;display:grid;place-items:center;font:800 28px Nunito,sans-serif;color:#fff">{{ yourInitial }}</div>
+          <div>
+            <div style="font:800 28px Nunito,sans-serif">{{ yourName }}</div>
+            <div style="font:13px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ yourPhone }}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:6px">
+          <label style="font:700 12.5px Karla,sans-serif;color:rgba(58,44,40,.6)">your bio</label>
+          <input value="{{ yourBio }}" onChange="{{ setBio }}" placeholder="add a short bio — what are you usually up for?" style="border:1px solid rgba(58,44,40,.2);background:rgba(255,255,255,.6);border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+        </div>
+
+        <div style="display:flex;gap:26px;margin-top:22px;font:13px Karla,sans-serif;color:rgba(58,44,40,.6)">
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statPosted }}</span> posted</div>
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statJoined }}</span> joined</div>
+          <div><span style="font:800 18px Nunito,sans-serif;color:#3a2c28">{{ statFriends }}</span> friends</div>
+        </div>
+
+        <div style="margin-top:30px;font:800 17px Nunito,sans-serif">going to</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+          <sc-for list="{{ goingEvents }}" as="ev" hint-placeholder-count="2">
+            <div onClick="{{ ev.open }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:13px 16px" style-hover="border-color:rgba(58,44,40,.3)">
+              <div style="width:36px;height:36px;border-radius:50%;background:{{ ev.color }};display:grid;place-items:center;font:800 13px Nunito,sans-serif;color:#fff;flex:none">{{ ev.initial }}</div>
+              <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                <div style="font:800 14.5px Nunito,sans-serif">{{ ev.title }}</div>
+                <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ ev.meta }}</div>
+              </div>
+              <div style="margin-left:auto;background:#3a2c28;color:#ffe9c2;font:800 11px Nunito,sans-serif;padding:6px 12px;border-radius:999px;flex:none">going ✓</div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noGoing }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1.5px dashed rgba(58,44,40,.18);border-radius:16px;padding:20px;text-align:center;font:600 13px Karla,sans-serif;color:rgba(58,44,40,.45)">not going to anything yet — <span onClick="{{ goToday }}" style="text-decoration:underline;cursor:pointer;color:#3a2c28">check the board</span> 🌤️</div>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:30px;font:800 17px Nunito,sans-serif">you're hosting</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+          <sc-for list="{{ yourPosts }}" as="post" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.75);backdrop-filter:blur(12px);border-radius:16px;padding:13px 16px">
+              <div onClick="{{ post.open }}" style="cursor:pointer;display:flex;flex-direction:column;gap:1px;min-width:0">
+                <div style="font:800 14.5px Nunito,sans-serif">{{ post.title }}</div>
+                <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ post.meta }}</div>
+              </div>
+              <button onClick="{{ post.cancel }}" style="margin-left:auto;cursor:pointer;border:1.5px solid rgba(58,44,40,.25);background:none;color:rgba(58,44,40,.65);font:800 11.5px Nunito,sans-serif;padding:7px 13px;border-radius:999px;flex:none">call it off</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noPosts }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1.5px dashed rgba(58,44,40,.18);border-radius:16px;padding:20px;text-align:center;font:600 13px Karla,sans-serif;color:rgba(58,44,40,.45)">nothing on the board yet — <span onClick="{{ openComposerFromYou }}" style="text-decoration:underline;cursor:pointer;color:#3a2c28">post something</span> ✨</div>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:30px;font:800 17px Nunito,sans-serif">the sky</div>
+        <div style="font:13px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:4px">looped's background follows the real time of day. peek at the other skies:</div>
+        <div style="display:flex;gap:9px;margin-top:12px">
+          <sc-for list="{{ skyChips }}" as="chip" hint-placeholder-count="4">
+            <button onClick="{{ chip.pick }}" style="cursor:pointer;border:1.5px solid {{ chip.border }};background:{{ chip.bg }};color:#3a2c28;font:700 12.5px Karla,sans-serif;padding:9px 15px;border-radius:999px">{{ chip.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:30px">
+          <button onClick="{{ resetApp }}" style="cursor:pointer;border:none;background:none;font:600 12.5px Karla,sans-serif;color:rgba(58,44,40,.45);text-decoration:underline;padding:0">start over (replay onboarding)</button>
+        </div>
+      </div>
+    </sc-if>
+
+  </sc-if>
+
+  <!-- ============ EVENT DETAIL POP-UP ============ -->
+  <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDetail }}" style="position:fixed;inset:0;background:rgba(58,44,40,.28);backdrop-filter:blur(3px);display:flex;align-items:{{ dAlign }};justify-content:{{ dJustify }};padding:{{ dPad }};z-index:50">
+      <div onClick="{{ stopProp }}" style="width:{{ dWidth }};max-width:100%;max-height:{{ dMaxH }};overflow-y:auto;box-sizing:border-box;background:rgba(255,251,246,.94);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(20px);border-radius:{{ dRadius }};padding:30px 34px;animation:{{ dAnim }}" data-screen-label="event detail">
+
+        <sc-if value="{{ dIsSheet }}" hint-placeholder-val="{{ false }}">
+          <div style="width:44px;height:5px;border-radius:999px;background:rgba(58,44,40,.2);margin:-8px auto 16px"></div>
+        </sc-if>
+
+        <div style="display:flex;justify-content:flex-end;margin:-8px -10px 4px 0">
+          <button onClick="{{ closeDetail }}" style="cursor:pointer;border:none;background:rgba(58,44,40,.08);color:#3a2c28;font:800 13px Nunito,sans-serif;width:28px;height:28px;border-radius:50%">✕</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:46px;height:46px;border-radius:50%;background:{{ dColor }};display:grid;place-items:center;font:800 17px Nunito,sans-serif;color:#fff;flex:none">{{ dInitial }}</div>
+          <div>
+            <div style="font:800 15px Nunito,sans-serif">{{ dWho }}</div>
+            <div style="font:12px Karla,sans-serif;color:rgba(58,44,40,.55)">{{ dPostedAgo }}</div>
+          </div>
+        </div>
+
+        <div style="font:800 26px/1.2 Nunito,sans-serif;margin:14px 0 4px">{{ dTitle }}</div>
+
+        <sc-if value="{{ dHasNote }}" hint-placeholder-val="{{ true }}">
+          <div style="font:700 11px Karla,sans-serif;letter-spacing:.08em;color:rgba(58,44,40,.5);margin-top:12px">A WORD FROM {{ dWhoUpper }}</div>
+          <div style="font:italic 400 15px/1.5 Karla,sans-serif;color:#3a2c28;margin-top:5px">"{{ dNote }}"</div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:16px;font:600 13.5px Karla,sans-serif;color:#3a2c28">
+          <div>📍 {{ dPlace }}</div>
+          <div>🕒 {{ dTimeRange }}</div>
+        </div>
+
+        <div style="border-top:1px solid rgba(58,44,40,.15);margin:18px 0 14px"></div>
+
+        <div style="font:700 11px Karla,sans-serif;letter-spacing:.08em;color:rgba(58,44,40,.5)">WHO'S GOING</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
+          <div style="display:flex">
+            <sc-for list="{{ dAvatars }}" as="av" hint-placeholder-count="2">
+              <div style="width:28px;height:28px;border-radius:50%;background:{{ av.color }};border:2px solid rgba(255,251,246,.95);margin-left:{{ av.ml }};display:grid;place-items:center;font:800 11px Nunito,sans-serif;color:#fff">{{ av.initial }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <div style="font:600 13px Karla,sans-serif">{{ dGoingNames }}</div>
+            <div style="font:italic 600 12px Karla,sans-serif;color:rgba(58,44,40,.6)">{{ dSpotsLine }}</div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid rgba(58,44,40,.15);margin:16px 0 14px"></div>
+
+        <div style="font:700 11px Karla,sans-serif;letter-spacing:.08em;color:rgba(58,44,40,.5)">GETTING THERE</div>
+        <div style="margin-top:9px;height:110px;border-radius:14px;background:rgba(58,44,40,.08);display:grid;place-items:center;font:600 12.5px Karla,sans-serif;color:rgba(58,44,40,.45)">map preview 🗺️</div>
+        <div style="text-align:center;font:600 12px Karla,sans-serif;color:rgba(58,44,40,.55);margin-top:7px">{{ dDistance }}</div>
+
+        <sc-if value="{{ dShowJoin }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ dToggleJoin }}" style="cursor:pointer;border:none;display:block;width:100%;background:{{ dBtnBg }};color:{{ dBtnColor }};font:800 16px Nunito,sans-serif;padding:15px;border-radius:999px;margin-top:20px;box-shadow:0 3px 12px rgba(255,138,92,.35)">{{ dBtnLabel }}</button>
+          <div style="text-align:center;font:600 12.5px Karla,sans-serif;color:rgba(58,44,40,.6);margin-top:12px"><span onClick="{{ dCantMake }}" style="text-decoration:underline;cursor:pointer;color:#3a2c28;font-weight:700">tell {{ dWho }} you can't make it this time :(</span></div>
+        </sc-if>
+        <sc-if value="{{ dIsYours }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ dCancel }}" style="cursor:pointer;display:block;width:100%;border:1.5px solid rgba(58,44,40,.25);background:none;color:rgba(58,44,40,.7);font:800 15px Nunito,sans-serif;padding:14px;border-radius:999px;margin-top:20px">call it off</button>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ COMPOSER MODAL ============ -->
+  <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeComposer }}" style="position:fixed;inset:0;background:rgba(58,44,40,.25);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:55">
+      <div onClick="{{ stopProp }}" style="width:480px;background:rgba(255,251,246,.92);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(20px);border-radius:22px;padding:30px 32px;animation:loopPop .35s ease" data-screen-label="composer">
+        <div style="font:800 21px Nunito,sans-serif">what are you up to?</div>
+        <div style="display:flex;gap:6px;margin-top:14px;flex-wrap:nowrap">
+          <sc-for list="{{ emojiChips }}" as="em" hint-placeholder-count="8">
+            <button onClick="{{ em.pick }}" style="flex:1;min-width:0;cursor:pointer;border:1.5px solid {{ em.border }};background:{{ em.bg }};font-size:16px;padding:7px 0;border-radius:10px">{{ em.char }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+          <input value="{{ cTitle }}" onChange="{{ setCTitle }}" placeholder="grabbing boba, pickup soccer, library grind…" style="border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <input value="{{ cPlace }}" onChange="{{ setCPlace }}" placeholder="where?" style="border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <input value="{{ cNote }}" onChange="{{ setCNote }}" placeholder="leave a note for friends (optional)" style="border:1px solid rgba(58,44,40,.2);background:#fff;border-radius:12px;padding:12px 15px;font:600 14px Karla,sans-serif;color:#3a2c28"></input>
+          <select value="{{ cDate }}" onChange="{{ setCDate }}" style="appearance:none;border:1px solid rgba(58,44,40,.2);background:#fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%233a2c28%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 16px center;border-radius:12px;padding:12px 42px 12px 14px;font:600 14px Karla,sans-serif;color:#3a2c28">
+            <sc-for list="{{ dateOptions }}" as="dt" hint-placeholder-count="6">
+              <option value="{{ dt.value }}">{{ dt.label }}</option>
+            </sc-for>
+          </select>
+          <div style="display:flex;gap:10px">
+            <select value="{{ cTime }}" onChange="{{ setCTime }}" style="flex:1;appearance:none;border:1px solid rgba(58,44,40,.2);background:#fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%233a2c28%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 16px center;border-radius:12px;padding:12px 42px 12px 14px;font:600 14px Karla,sans-serif;color:#3a2c28">
+              <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="6">
+                <option value="{{ t.value }}">{{ t.label }}</option>
+              </sc-for>
+            </select>
+            <select value="{{ cSpots }}" onChange="{{ setCSpots }}" style="flex:1;appearance:none;border:1px solid rgba(58,44,40,.2);background:#fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%233a2c28%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 16px center;border-radius:12px;padding:12px 42px 12px 14px;font:600 14px Karla,sans-serif;color:#3a2c28">
+              <sc-for list="{{ spotsOptions }}" as="sp" hint-placeholder-count="4">
+                <option value="{{ sp.value }}">{{ sp.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button onClick="{{ postActivity }}" style="cursor:pointer;border:none;background:{{ accent }};color:#fff;font:800 14px Nunito,sans-serif;padding:13px 22px;border-radius:999px;box-shadow:0 3px 12px rgba(255,138,92,.4)">post it</button>
+          <button onClick="{{ closeComposer }}" style="cursor:pointer;border:none;background:rgba(58,44,40,.08);color:#3a2c28;font:800 14px Nunito,sans-serif;padding:13px 20px;border-radius:999px">never mind</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TOAST ============ -->
+  <sc-if value="{{ toastShown }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(58,44,40,.92);color:#fff3e8;font:700 13.5px Karla,sans-serif;padding:12px 22px;border-radius:999px;animation:loopToast .3s ease;z-index:60">{{ toastText }}</div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;timeOfDay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;morning&quot;,&quot;sunset&quot;,&quot;night&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'morning'|'sunset'|'night'&quot;,&quot;section&quot;:&quot;sky&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#ff8a5c&quot;,&quot;#f2679a&quot;,&quot;#8b7ff0&quot;,&quot;#2f9e77&quot;],&quot;default&quot;:&quot;#ff8a5c&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;brand&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: 'today',
+    name: '', last: '', phone: '', bio: '',
+    onboarded: false,
+    obStep: 1,
+    obFirst: '', obLast: '', obPhone: '',
+    obAdded: ['kat', 'maya', 'dev', 'priya'],
+    joins: {},
+    gone: {},
+    posts: [],
+    composerOpen: false,
+    cTitle: '', cPlace: '', cNote: '', cDate: '0', cTime: '', cSpots: '0', cEmoji: '',
+    toast: '',
+    pingsRead: false,
+    friendQuery: '', contactQuery: '', contactsLinked: false,
+    skyOverride: 'auto',
+    detailId: null,
+    popupStyle: '',
+    nowTick: Date.now(),
+    loaded: false
+  };
+
+  componentDidMount() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('looped_state') || localStorage.getItem('tether_state') || '{}');
+      this.setState({
+        name: saved.name || '',
+        last: saved.last || '', phone: saved.phone || '', bio: saved.bio || '',
+        onboarded: !!saved.onboarded,
+        view: saved.onboarded ? 'today' : 'onboarding',
+        joins: saved.joins || {},
+        posts: saved.posts || [],
+        skyOverride: saved.skyOverride || 'auto',
+        loaded: true
+      });
+    } catch (e) { this.setState({ view: 'onboarding', loaded: true }); }
+    this._clock = setInterval(() => this.setState({ nowTick: Date.now() }), 30000);
+  }
+  componentWillUnmount() { clearInterval(this._clock); this._toastT && clearTimeout(this._toastT); }
+
+  persist() {
+    const s = this.state;
+    try {
+      localStorage.setItem('looped_state', JSON.stringify({
+        name: s.name, last: s.last, phone: s.phone, bio: s.bio, onboarded: s.onboarded, joins: s.joins, posts: s.posts, skyOverride: s.skyOverride
+      }));
+    } catch (e) {}
+  }
+  set(patch) { this.setState(patch, () => this.persist()); }
+
+  toast(msg) {
+    this.setState({ toast: msg });
+    this._toastT && clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  // ---------- time & sky ----------
+  nowHour() { const d = new Date(); return d.getHours() + d.getMinutes() / 60; }
+  mode() {
+    const p = this.props.timeOfDay;
+    if (p && p !== 'auto') return p;
+    if (this.state.skyOverride !== 'auto') return this.state.skyOverride;
+    const h = this.nowHour();
+    if (h >= 5 && h < 15) return 'morning';
+    if (h >= 15 && h < 20.5) return 'sunset';
+    return 'night';
+  }
+  gradient() {
+    return {
+      morning: 'linear-gradient(100deg,#ffe9c2 0%,#ffd7c9 55%,#ffd0dc 100%)',
+      sunset: 'linear-gradient(100deg,#ffd2a8 0%,#f7bcbe 55%,#f0b0c8 100%)',
+      night: 'linear-gradient(100deg,#b3bce8 0%,#ccbce8 55%,#e4cbee 100%)'
+    }[this.mode()];
+  }
+  fmt(h) {
+    h = ((h % 24) + 24) % 24;
+    const hr = Math.floor(h), m = Math.round((h - hr) * 60);
+    const ampm = hr >= 12 ? 'pm' : 'am';
+    let hh = hr % 12; if (hh === 0) hh = 12;
+    return hh + (m ? ':' + String(m).padStart(2, '0') : '') + ' ' + ampm;
+  }
+
+  // ---------- data ----------
+  fmtName(first, last) {
+    if (!first) return 'you';
+    return (first + (last ? ' ' + last[0] + '.' : '')).toLowerCase();
+  }
+  friends() {
+    const raw = [
+      { id: 'kat', first: 'Kat', last: 'Tran', color: '#e0a878', bio: 'usually up for coffee + thrifting' },
+      { id: 'maya', first: 'Maya', last: 'Rosen', color: '#a8c4e0', bio: 'picnics, long walks, iced matcha' },
+      { id: 'dev', first: 'Dev', last: 'Shah', color: '#9db8a4', bio: 'gym rat, will spot you' },
+      { id: 'priya', first: 'Priya', last: 'Kapoor', color: '#c9a8d8', bio: 'movie nights + late food runs' },
+      { id: 'theo', first: 'Theo', last: 'Marín', color: '#d8a8a8', bio: 'pickup soccer, board games' },
+      { id: 'sana', first: 'Sana', last: 'Patel', color: '#a8c8c8', bio: 'library grinds, chai breaks' }
+    ];
+    return raw.map(f => ({ ...f, name: this.fmtName(f.first, f.last) }));
+  }
+  friendById(id) { return this.friends().find(f => f.id === id); }
+
+  baseActivities() {
+    const now = this.nowHour();
+    const clamp = (h) => Math.max(8.25, Math.min(23.5, h));
+    return [
+      { id: 'a1', who: 'kat', emoji: '☕', what: 'coffee run', place: 'blue bottle, 3rd st', hour: clamp(now - 3), dur: 1, joined: ['maya', 'theo'], spots: 0, note: 'need caffeine before my 2pm, come yap with me', dist: '0.3 mi · 6 min walk', postedAgo: 'posted 3 hrs ago' },
+      { id: 'a2', who: 'maya', emoji: '🧺', what: 'picnic on the quad', place: 'east lawn', hour: clamp(now - 0.2), dur: 2, joined: ['kat', 'theo'], spots: 4, note: 'i have a blanket, snacks, and zero plans. perfect weather for it', dist: '0.4 mi · 8 min walk', postedAgo: 'posted 40 min ago' },
+      { id: 'a3', who: 'sana', emoji: '📚', what: 'library grind', place: 'main library, fl 3', hour: clamp(now + 1.5), dur: 3, joined: [], spots: 0, note: 'quiet floor but we can take chai breaks every hour', dist: '0.6 mi · 12 min walk', postedAgo: 'posted 1 hr ago' },
+      { id: 'a4', who: 'dev', emoji: '🏋️', what: 'gym sesh', place: 'campus rec center', hour: clamp(now + 3.5), dur: 1.5, joined: [], spots: 2, note: 'push day. i need a spotter and moral support', dist: '0.8 mi · 15 min walk', postedAgo: 'posted 2 hrs ago' },
+      { id: 'a5', who: 'priya', emoji: '🎬', what: 'movie night', place: 'dune part three, amc 12', hour: clamp(now + 6), dur: 2.5, joined: ['theo', 'maya', 'kat'], spots: 5, note: 'got a promo code for cheap tickets. no spoilers or you walk home', dist: '1.2 mi · 10 min bus', postedAgo: 'posted yesterday' },
+      { id: 'a6', who: 'theo', emoji: '🎳', what: 'bowling before class', place: 'sunset lanes', hour: clamp(now + 0.16), dur: 1.5, joined: ['dev'], spots: 4, note: 'quick game, first one there grabs a lane', dist: '0.2 mi · 4 min walk', postedAgo: 'posted 2 hrs ago' },
+      { id: 'a7', who: 'sana', emoji: '🧋', what: 'boba run', place: 'tiger sugar', hour: clamp(now + 2), dur: 1, joined: ['kat', 'priya'], spots: 2, note: 'craving brown sugar milk tea, who\'s coming', dist: '0.3 mi · 5 min walk', postedAgo: 'posted 30 min ago' }
+    ];
+  }
+
+  weekActivities() {
+    return [
+      { id: 'w1', who: 'theo', emoji: '⚽', what: 'pickup soccer', place: 'riverside fields', day: 'wed', hour: 17.5, dur: 1.5, joined: ['dev'], spots: 8, note: 'all skill levels, we mostly just run around and vibe', dist: '1.0 mi · 9 min bike', postedAgo: 'posted this morning' },
+      { id: 'w2', who: 'kat', emoji: '🛍️', what: 'thrift crawl', place: 'east village, 3 stops', day: 'fri', hour: 14, dur: 3, joined: ['maya'], spots: 3, note: 'hunting for a jacket. i know all the good racks, trust', dist: '2.1 mi · 15 min subway', postedAgo: 'posted yesterday' },
+      { id: 'w3', who: 'sana', emoji: '🥞', what: 'brunch before finals week', place: 'sunny side diner', day: 'sat', hour: 11, dur: 1.5, joined: ['priya', 'maya'], spots: 2, note: 'one last good meal before we all disappear into the library', dist: '0.5 mi · 10 min walk', postedAgo: 'posted 2 days ago' }
+    ];
+  }
+
+  dayLabel(offset) {
+    if (!offset) return 'today';
+    if (offset === 1) return 'tomorrow';
+    const days = ['sun','mon','tue','wed','thu','fri','sat'];
+    const d = new Date(); d.setDate(d.getDate() + offset);
+    return days[d.getDay()];
+  }
+  allToday() {
+    const posts = this.state.posts
+      .filter(p => !(p.dayOffset > 0))
+      .map(p => ({ ...p, isYours: true, dur: p.dur || 1.5 }));
+    return this.baseActivities().concat(posts).filter(a => !this.state.gone[a.id]);
+  }
+  futurePosts() {
+    return this.state.posts
+      .filter(p => p.dayOffset > 0 && !this.state.gone[p.id])
+      .map(p => ({ ...p, isYours: true, dur: p.dur || 1.5, day: this.dayLabel(p.dayOffset) }))
+      .sort((a, b) => (a.dayOffset - b.dayOffset) || (a.hour - b.hour));
+  }
+  findActivity(id) {
+    return this.allToday().find(a => a.id === id)
+      || this.weekActivities().find(a => a.id === id)
+      || this.futurePosts().find(a => a.id === id);
+  }
+
+  // Notifications are generated from event data + timing:
+  //  · a friend posts a new event                         → posted ping
+  //  · event 24h / 1h out and still has vacancies          → vacancy reminder
+  //  · event you're attending starts in ~10 min            → head-out ping
+  buildPings() {
+    const S = this.state;
+    const now = this.nowHour();
+    const out = [];
+    const today = this.allToday();
+
+    // one ping per event; joining flips the SAME ping to a "you're going" state in place
+    today.concat(this.weekActivities()).forEach(a => {
+      if (a.isYours) return;
+      const youIn = !!S.joins[a.id];
+      const left = a.spots ? a.spots - (a.joined.length + (youIn ? 1 : 0)) : 99;
+      const full = a.spots && left <= 0 && !youIn;
+      const mins = a.day ? 9999 : (a.hour - now) * 60;
+      const f = this.friendById(a.who);
+      const base = { who: a.who, actId: a.id };
+
+      // event you're attending starts in ~10 min → head-out ping
+      if (youIn && mins <= 10 && mins > -6) {
+        out.push({ ...base, sort: 0, unread: true, going: true,
+          text: a.what + ' ' + a.emoji + ' starts in ' + Math.max(1, Math.round(mins)) + ' min — head to ' + a.place + '!',
+          when: 'just now' });
+        return;
+      }
+      // you're already going → stable "you're going" ping
+      if (youIn) {
+        out.push({ ...base, sort: 4, unread: false, going: true,
+          text: "going to " + a.what + ' ' + a.emoji + (a.day ? ' on ' + a.day : ''),
+          when: (a.day ? a.day + ' ' : 'today ') + this.fmt(a.hour) });
+        return;
+      }
+      // still-open event approaching → vacancy reminder with i'm in
+      if (a.spots && left > 0 && mins > 10) {
+        const soon = mins <= 60;
+        out.push({ ...base, sort: soon ? 1 : (a.day ? 3 : 2), unread: soon, action: "i'm in",
+          text: a.what + ' ' + a.emoji + (a.day ? ' on ' + a.day : '') + (soon ? ' starts within the hour' : '') + ' — ' + left + (left === 1 ? ' spot' : ' spots') + (soon ? ' still open' : ' left, join before it fills'),
+          when: (a.day ? a.day + ' ' : 'starts ') + this.fmt(a.hour) });
+        return;
+      }
+      // otherwise → a friend posted a new event
+      out.push({ ...base, sort: 5, unread: false, action: full ? null : "i'm in",
+        text: (f ? f.first.toLowerCase() : a.who) + ' posted ' + a.what + ' ' + a.emoji + (a.day ? ' for ' + a.day : '') + (full ? ' (full)' : ''),
+        when: a.postedAgo || 'recently' });
+    });
+
+    out.sort((x, y) => x.sort - y.sort);
+    return out;
+  }
+
+  status(a) {
+    if (a.day) return 'open';
+    const now = this.nowHour();
+    if (now > a.hour + (a.dur || 1.25)) return 'wrapped';
+    if (now >= a.hour - 0.25) return 'now';
+    return 'open';
+  }
+
+  popupStyle() { return 'modal'; }
+
+  // ---------- renderVals ----------
+  renderVals() {
+    const S = this.state;
+    const accent = this.props.accent ?? '#ff8a5c';
+    const mode = this.mode();
+    const now = this.nowHour();
+    const name = S.name || 'you';
+    const gname = name.toLowerCase();
+    const isOnboarding = S.view === 'onboarding';
+
+    const greeting = mode === 'morning' ? 'good morning, ' + gname + ' ☀️'
+      : mode === 'sunset' ? 'golden hour, ' + gname + ' 🌅'
+      : 'night owl hours, ' + gname + ' 🌙';
+
+    // today activities → display items
+    const acts = this.allToday().map(a => {
+      const st = this.status(a);
+      const youIn = !!S.joins[a.id];
+      const joinedCount = a.joined.length + (youIn ? 1 : 0);
+      const fr = this.friendById(a.who);
+      const whoName = a.isYours ? 'you' : (fr ? fr.name : a.who);
+      const wrapped = st === 'wrapped';
+      const spotsLeft = a.spots ? a.spots - joinedCount : 0;
+      const full = !!a.spots && spotsLeft <= 0 && !youIn;
+      let joinText;
+      if (wrapped) joinText = joinedCount ? joinedCount + ' went' : 'quiet one';
+      else if (youIn) joinText = joinedCount === 1 ? "going" : 'you + ' + (joinedCount - 1) + ' going';
+      else if (full) joinText = 'full · ' + joinedCount + ' going';
+      else if (joinedCount === 0) joinText = a.isYours ? 'no one yet' : 'be the first 👀';
+      else joinText = joinedCount + ' in' + (a.spots && spotsLeft > 0 ? ' · ' + spotsLeft + ' spots left' : '');
+      const statusLine = wrapped ? this.fmt(a.hour) + ' · wrapped'
+        : st === 'now' ? 'happening now'
+        : this.fmt(a.hour) + (a.hour >= 20 ? ' · tonight' : '');
+      return {
+        id: a.id, hour: a.hour,
+        title: a.what + ' ' + a.emoji,
+        whoLine: whoName + ' · 📍 ' + a.place,
+        note: a.note || '',
+        hasNote: !!a.note && !wrapped,
+        isYours: !!a.isYours,
+        opacity: wrapped ? '.55' : '1',
+        anim: st === 'now' ? 'loopPulse 2.6s ease infinite' : 'none',
+        shadow: st === 'now' ? '0 4px 16px rgba(255,138,92,.25)' : 'none',
+        statusLine,
+        statusColor: st === 'now' ? '#e0562a' : 'rgba(58,44,40,.5)',
+        statusFont: st === 'now' ? "800 11px Nunito,sans-serif" : "600 11px Karla,sans-serif",
+        showFooter: !wrapped,
+        avatars: a.joined.slice(0, 3).map((j, i) => {
+          const f = this.friendById(j);
+          return { color: f ? f.color : '#ccc', ml: i === 0 ? '0' : '-6px' };
+        }),
+        joinText,
+        showBtn: !a.isYours && !full,
+        btnLabel: youIn ? "going ✓" : "i'm in",
+        btnBg: youIn ? '#3a2c28' : accent,
+        btnColor: youIn ? '#ffe9c2' : '#fff',
+        open: () => this.setState({ detailId: a.id }),
+        toggleJoin: (e) => {
+          e.stopPropagation();
+          this.set({ joins: { ...this.state.joins, [a.id]: !youIn } });
+          this.toast(!youIn ? "going — " + whoName + " will be stoked 🎉" : 'no worries, backed out quietly');
+        },
+        showCancel: !!a.isYours,
+        cancel: (e) => {
+          e.stopPropagation();
+          this.set({ gone: { ...this.state.gone, [a.id]: true }, posts: this.state.posts.filter(p => p.id !== a.id) });
+          this.toast('called off — friends were told 💛');
+        }
+      };
+    });
+
+    const edges = [[0, 12], [12, 17], [17, 21], [21, 25]];
+    const buckets = edges.map(([lo, hi]) => {
+      const items = acts.filter(a => a.hour >= lo && a.hour < hi).sort((x, y) => x.hour - y.hour);
+      return { items, empty: items.length === 0 };
+    });
+
+    const segs = [['8 am', 8, 12], ['noon', 12, 17], ['5 pm', 17, 21], ['9 pm', 21, 25]];
+    const axis = segs.map(([label, lo, hi]) => {
+      const active = now >= lo && now < hi;
+      return {
+        label: active ? label + ' ●' : label,
+        borderTop: active ? '2px solid rgba(58,44,40,.55)' : '2px dotted rgba(58,44,40,.3)',
+        color: active ? '#3a2c28' : 'rgba(58,44,40,.5)'
+      };
+    });
+
+    const liveActs = acts.filter(a => a.opacity === '1' && !a.isYours);
+    const subline = liveActs.length
+      ? liveActs.length + (liveActs.length === 1 ? ' friend is' : ' friends are') + ' out doing things — tap in whenever'
+      : 'nothing on the board yet — start something';
+
+    // later this week
+    const weekItems = this.futurePosts().concat(this.weekActivities()).map(a => {
+      const fr = a.isYours ? null : this.friendById(a.who);
+      const youIn = !!S.joins[a.id];
+      const count = a.joined.length + (youIn ? 1 : 0);
+      const who = a.isYours ? 'you' : fr.name;
+      return {
+        title: a.what + ' ' + a.emoji,
+        meta: who + ' · ' + a.day + ' ' + this.fmt(a.hour) + ' · 📍 ' + a.place,
+        note: a.note,
+        color: a.isYours ? '#ffb37e' : fr.color,
+        initial: (a.isYours ? name : fr.first)[0].toUpperCase(),
+        goingText: a.isYours ? 'yours' : (youIn ? "going ✓" : (a.spots ? count + '/' + a.spots + ' going' : count + ' going')),
+        open: () => this.setState({ detailId: a.id })
+      };
+    });
+
+    const d = new Date();
+    const days = ['sun','mon','tue','wed','thu','fri','sat'];
+    const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const clockLine = days[d.getDay()] + ' ' + months[d.getMonth()] + ' ' + d.getDate() + ' · ' + this.fmt(now);
+
+    const rawPings = this.buildPings();
+    const unread = S.pingsRead ? 0 : rawPings.filter(p => p.unread).length;
+    const tabs = [['today', 'today'], ['friends', 'friends'], ['pings', 'pings'], ['you', 'you']];
+    const navTabs = tabs.map(([label, v]) => ({
+      label,
+      dot: v === 'pings' && unread > 0,
+      weight: S.view === v ? '700' : '600',
+      color: S.view === v ? '#3a2c28' : 'rgba(58,44,40,.55)',
+      underline: S.view === v ? '#3a2c28' : 'transparent',
+      go: () => this.setState({ view: v })
+    }));
+
+    const pings = rawPings.map(p => {
+      const f = this.friendById(p.who);
+      const youIn = p.actId && !!S.joins[p.actId];
+      return {
+        text: p.text, when: p.when,
+        initial: (f ? f.first[0] : p.who[0]).toUpperCase(),
+        color: f ? f.color : 'rgba(58,44,40,.25)',
+        bg: p.unread && !S.pingsRead ? 'rgba(255,255,255,.65)' : 'rgba(255,255,255,.42)',
+        unread: !!p.unread && !S.pingsRead,
+        hasAction: !!p.action && !youIn,
+        going: !!p.actId && youIn,
+        actionLabel: p.action,
+        act: () => {
+          if (p.actId) {
+            this.set({ joins: { ...this.state.joins, [p.actId]: true } });
+            this.toast("going 🎉 it's on your board");
+          }
+        }
+      };
+    });
+
+    const friendCards = this.friends().map(f => ({ ...f, initial: f.first[0].toUpperCase() }));
+
+    // onboarding
+    const obFriends = this.friends().slice(0, 4).map(f => {
+      const added = S.obAdded.includes(f.id);
+      return {
+        name: f.name, bio: f.bio, color: f.color, initial: f.first[0].toUpperCase(),
+        btnLabel: added ? 'added ✓' : '+ add',
+        btnBg: added ? '#3a2c28' : 'rgba(58,44,40,.08)',
+        btnColor: added ? '#ffe9c2' : '#3a2c28',
+        toggle: () => this.setState({ obAdded: added ? S.obAdded.filter(x => x !== f.id) : S.obAdded.concat(f.id) })
+      };
+    });
+    const obDots = [1, 2].map(n => ({ bg: n === S.obStep ? '#3a2c28' : 'rgba(58,44,40,.2)' }));
+
+    // composer
+    const emojis = ['☕', '🏋️', '🎬', '🍜', '📚', '🚶', '🎮', '🧺', '🍦'];
+    const spotsOptions = [{ value: '0', label: 'open to everyone' }].concat(
+      Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: (i + 1) + (i === 0 ? ' spot' : ' spots') }))
+    );
+    const emojiChips = emojis.map(e => ({
+      char: e,
+      bg: S.cEmoji === e ? 'rgba(255,138,92,.2)' : 'rgba(255,255,255,.7)',
+      border: S.cEmoji === e ? accent : 'rgba(58,44,40,.15)',
+      pick: () => this.setState({ cEmoji: this.state.cEmoji === e ? '' : e })
+    }));
+    // date: today + up to 5 days out
+    const dateOptions = [0, 1, 2, 3, 4, 5].map(off => {
+      const dd = new Date(); dd.setDate(dd.getDate() + off);
+      const wd = ['sun','mon','tue','wed','thu','fri','sat'][dd.getDay()];
+      const mo = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][dd.getMonth()];
+      const label = off === 0 ? 'today' : off === 1 ? 'tomorrow' : wd + ' ' + mo + ' ' + dd.getDate();
+      return { value: String(off), label };
+    });
+    // time: from now if today, otherwise a full day of half-hour slots
+    const cDateOff = parseInt(S.cDate, 10) || 0;
+    const timeOptions = [];
+    let t = cDateOff === 0 ? Math.ceil(now * 2) / 2 + 0.5 : 8;
+    const tEnd = cDateOff === 0 ? 24 : 23.5;
+    for (let i = 0; i < 40 && t <= tEnd; i++, t += 0.5) {
+      timeOptions.push({ value: String(t), label: this.fmt(t) });
+    }
+    if (!timeOptions.length) timeOptions.push({ value: '20', label: this.fmt(20) });
+
+    const yourPosts = this.state.posts.filter(p => !S.gone[p.id]).map(p => ({
+      title: p.what + ' ' + p.emoji,
+      meta: (p.dayOffset > 0 ? this.dayLabel(p.dayOffset) + ' ' : '') + this.fmt(p.hour) + ' · ' + p.place,
+      open: () => this.setState({ detailId: p.id }),
+      cancel: () => {
+        this.set({ posts: this.state.posts.filter(x => x.id !== p.id) });
+        this.toast('called off — friends were told 💛');
+      }
+    }));
+
+    // events you've said you're going to (joined, not your own posts)
+    const goingEvents = this.allToday().concat(this.weekActivities(), this.futurePosts())
+      .filter(a => !a.isYours && S.joins[a.id] && !S.gone[a.id])
+      .map(a => {
+        const fr = this.friendById(a.who);
+        return {
+          title: a.what + ' ' + a.emoji,
+          meta: (fr ? fr.name : a.who) + ' · ' + (a.day ? a.day + ' ' : '') + this.fmt(a.hour) + ' · 📍 ' + a.place,
+          color: fr ? fr.color : 'rgba(58,44,40,.25)',
+          initial: (fr ? fr.first : a.who)[0].toUpperCase(),
+          open: () => this.setState({ detailId: a.id })
+        };
+      });
+
+    const skies = [['auto', 'auto ✨'], ['morning', 'morning ☀️'], ['sunset', 'sunset 🌅'], ['night', 'night 🌙']];
+    const skyChips = skies.map(([v, label]) => {
+      const on = S.skyOverride === v;
+      return {
+        label,
+        bg: on ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.4)',
+        border: on ? '#3a2c28' : 'rgba(58,44,40,.18)',
+        pick: () => this.set({ skyOverride: v })
+      };
+    });
+
+    // ---------- event detail popup ----------
+    const detail = S.detailId ? this.findActivity(S.detailId) : null;
+    let dVals = {};
+    if (detail) {
+      const a = detail;
+      const fr = this.friendById(a.who);
+      const whoName = a.isYours ? 'you' : (fr ? fr.name : a.who);
+      const youIn = !!S.joins[a.id];
+      const joinedIds = a.joined || [];
+      const joinedCount = joinedIds.length + (youIn ? 1 : 0);
+      const spotsLeft = a.spots ? a.spots - joinedCount : 0;
+      const goingNames = joinedIds.map(j => { const f = this.friendById(j); return f ? f.name : j; });
+      if (youIn) goingNames.push('you');
+      const style = this.popupStyle();
+      const styleMap = {
+        modal: { align: 'center', justify: 'center', pad: '40px', width: '480px', maxH: '86vh', radius: '22px', anim: 'loopPop .35s ease' },
+        sheet: { align: 'flex-end', justify: 'center', pad: '0', width: '620px', maxH: '86vh', radius: '24px 24px 0 0', anim: 'loopSheet .4s cubic-bezier(.2,.8,.3,1)' },
+        panel: { align: 'stretch', justify: 'flex-end', pad: '0', width: '440px', maxH: '100vh', radius: '0', anim: 'loopPanel .35s cubic-bezier(.2,.8,.3,1)' }
+      };
+      const sm = styleMap[style] || styleMap.modal;
+      const timeRange = (a.day ? a.day + ' · ' : 'today, ') + this.fmt(a.hour) + ' – ' + this.fmt(a.hour + (a.dur || 1.5));
+      dVals = {
+        detailOpen: true,
+        dAlign: sm.align, dJustify: sm.justify, dPad: sm.pad, dWidth: sm.width, dMaxH: sm.maxH, dRadius: sm.radius, dAnim: sm.anim,
+        dIsSheet: false,
+        dColor: a.isYours ? '#ffb37e' : (fr ? fr.color : '#ccc'),
+        dInitial: (whoName === 'you' ? name : whoName)[0].toUpperCase(),
+        dWho: whoName,
+        dWhoUpper: whoName.toUpperCase(),
+        dPostedAgo: a.postedAgo || 'posted just now',
+        dTitle: a.what + ' ' + a.emoji,
+        dHasNote: !!a.note,
+        dNote: a.note || '',
+        dPlace: a.place,
+        dTimeRange: timeRange,
+        dAvatars: (goingNames.length ? goingNames : ['?']).slice(0, 4).map((n, i) => {
+          const f = this.friends().find(x => x.name === n);
+          return {
+            color: n === 'you' ? '#ffb37e' : (f ? f.color : 'rgba(58,44,40,.2)'),
+            initial: n === '?' ? '·' : n[0].toUpperCase(),
+            ml: i === 0 ? '0' : '-8px'
+          };
+        }),
+        dGoingNames: goingNames.length ? goingNames.join(', ') : 'no one yet — be the first 👀',
+        dSpotsLine: a.spots ? (spotsLeft > 0 ? spotsLeft + (spotsLeft === 1 ? ' spot open' : ' spots open') : 'full house') : 'open to everyone',
+        dDistance: a.dist || 'distance unknown',
+        dShowJoin: !a.isYours,
+        dIsYours: !!a.isYours,
+        dIsFull: a.spots && spotsLeft <= 0 && !youIn,
+        dBtnLabel: youIn ? "going ✓" : (a.spots && spotsLeft <= 0 ? "ask to join" : "i'll be there!"),
+        dBtnBg: youIn ? '#3a2c28' : (a.spots && spotsLeft <= 0 ? 'rgba(58,44,40,.1)' : accent),
+        dBtnColor: youIn ? '#ffe9c2' : (a.spots && spotsLeft <= 0 ? '#3a2c28' : '#fff'),
+        dToggleJoin: () => {
+          if (a.spots && spotsLeft <= 0 && !youIn) {
+            this.setState({ detailId: null });
+            this.toast('asked ' + whoName + ' to join — they\'ll decide 🙏');
+            return;
+          }
+          this.set({ joins: { ...this.state.joins, [a.id]: !youIn } });
+          this.toast(!youIn ? "going — " + whoName + " will be stoked 🎉" : 'no worries, backed out quietly');
+        },
+        dCantMake: () => {
+          const patch = { detailId: null };
+          if (youIn) patch.joins = { ...this.state.joins, [a.id]: false };
+          this.set(patch);
+          this.toast("let " + whoName + " know you can't make it 💛");
+        },
+        dCancel: () => {
+          this.set({ gone: { ...this.state.gone, [a.id]: true }, posts: this.state.posts.filter(p => p.id !== a.id), detailId: null });
+          this.toast('called off — friends were told 💛');
+        }
+      };
+    }
+
+    return {
+      accent,
+      bgGradient: this.gradient(),
+      isOnboarding,
+      isApp: !isOnboarding,
+      isToday: S.view === 'today',
+      isFriends: S.view === 'friends',
+      isPings: S.view === 'pings',
+      isYou: S.view === 'you',
+
+      obStep1: S.obStep === 1, obStep2: S.obStep === 2,
+      obFirst: S.obFirst, obLast: S.obLast, obPhone: S.obPhone,
+      obHasName: !!S.obFirst.trim(),
+      obPreviewName: this.fmtName(S.obFirst.trim(), S.obLast.trim()),
+      setObFirst: (e) => this.setState({ obFirst: e.target.value }),
+      setObLast: (e) => this.setState({ obLast: e.target.value }),
+      setObPhone: (e) => this.setState({ obPhone: e.target.value }),
+      obNameKeyDown: (e) => { if (e.key === 'Enter') this.obNextFn(); },
+      obNext: () => this.obNextFn(),
+      obFinish: () => {
+        const first = this.state.obFirst.trim() || 'sam';
+        this.setState({ name: first, last: this.state.obLast.trim(), phone: this.state.obPhone.trim(), onboarded: true, view: 'today', joins: { a6: true } }, () => this.persist());
+        this.toast('welcome to looped 💛 here\'s today');
+      },
+      obFriends, obDots,
+
+      navTabs, clockLine,
+      yourInitial: (name[0] || 'y').toUpperCase(),
+      goToday: () => this.setState({ view: 'today' }),
+      goYou: () => this.setState({ view: 'you' }),
+
+      greeting, subline, axis, buckets, weekItems,
+      openComposer: () => this.setState({ composerOpen: true }),
+
+      pings,
+      markAllRead: () => this.setState({ pingsRead: true }),
+
+      friendCountLine: this.friends().length + ' friends on looped · ' + liveActs.length + ' out right now',
+      friendQuery: S.friendQuery,
+      setFriendQuery: (e) => this.setState({ friendQuery: e.target.value }),
+      inviteKeyDown: (e) => { if (e.key === 'Enter') this.doInvite(); },
+      sendInvite: () => this.doInvite(),
+      contactsLinked: S.contactsLinked,
+      contactsNotLinked: !S.contactsLinked,
+      linkContacts: () => { this.setState({ contactsLinked: true }); this.toast('contacts linked 📇 search friends by name'); },
+      contactQuery: S.contactQuery,
+      setContactQuery: (e) => this.setState({ contactQuery: e.target.value }),
+      searchContacts: () => this.doSearch(),
+      searchKeyDown: (e) => { if (e.key === 'Enter') this.doSearch(); },
+      friendCards,
+
+      yourName: this.fmtName(name, S.last),
+      yourPhone: S.phone || 'add your number in settings',
+      yourBio: S.bio,
+      setBio: (e) => this.set({ bio: e.target.value }),
+      statPosted: S.posts.length,
+      statJoined: Object.values(S.joins).filter(Boolean).length,
+      statFriends: this.friends().length,
+      yourPosts,
+      noPosts: yourPosts.length === 0,
+      goingEvents,
+      noGoing: goingEvents.length === 0,
+      openComposerFromYou: () => this.setState({ composerOpen: true, view: 'today' }),
+      skyChips,
+      resetApp: () => {
+        try { localStorage.removeItem('looped_state'); localStorage.removeItem('tether_state'); } catch (e) {}
+        this.setState({ name: '', last: '', phone: '', bio: '', onboarded: false, view: 'onboarding', obStep: 1, obFirst: '', obLast: '', obPhone: '', obAdded: ['kat','maya','dev','priya'], joins: {}, posts: [], gone: {}, skyOverride: 'auto', pingsRead: false, contactsLinked: false, contactQuery: '', friendQuery: '', detailId: null });
+      },
+
+      // detail popup defaults (overridden when open)
+      detailOpen: false,
+      closeDetail: () => this.setState({ detailId: null }),
+      ...dVals,
+
+      composerOpen: S.composerOpen,
+      closeComposer: () => this.setState({ composerOpen: false }),
+      stopProp: (e) => e.stopPropagation(),
+      cTitle: S.cTitle, setCTitle: (e) => this.setState({ cTitle: e.target.value }),
+      cPlace: S.cPlace, setCPlace: (e) => this.setState({ cPlace: e.target.value }),
+      cNote: S.cNote, setCNote: (e) => this.setState({ cNote: e.target.value }),
+      cDate: S.cDate, setCDate: (e) => this.setState({ cDate: e.target.value, cTime: '' }),
+      cTime: (timeOptions.some(o => o.value === S.cTime) ? S.cTime : (timeOptions[0] && timeOptions[0].value)),
+      setCTime: (e) => this.setState({ cTime: e.target.value }),
+      cSpots: S.cSpots, setCSpots: (e) => this.setState({ cSpots: e.target.value }),
+      dateOptions, emojiChips, timeOptions, spotsOptions,
+      postActivity: () => {
+        const what = S.cTitle.trim();
+        if (!what) { this.toast('say what you\'re up to first 🙂'); return; }
+        const dayOffset = Math.min(5, Math.max(0, parseInt(S.cDate, 10) || 0));
+        const validTime = timeOptions.some(o => o.value === S.cTime) ? S.cTime : (timeOptions[0] && timeOptions[0].value);
+        const post = {
+          id: 'p' + Date.now(),
+          who: 'you',
+          emoji: S.cEmoji || '✨',
+          what,
+          place: S.cPlace.trim() || 'somewhere good',
+          note: S.cNote.trim(),
+          dayOffset,
+          hour: parseFloat(validTime || '20'),
+          dur: 1.5,
+          joined: [], spots: parseInt(S.cSpots, 10) || 0,
+          postedAgo: 'posted just now',
+          dist: 'near you'
+        };
+        this.setState({
+          posts: this.state.posts.concat(post),
+          composerOpen: false, cTitle: '', cPlace: '', cNote: '', cDate: '0', cTime: '', cEmoji: '', cSpots: '0', view: 'today'
+        }, () => this.persist());
+        this.toast(dayOffset === 0 ? 'it\'s on the board — friends can tap in 🎉' : 'posted for ' + this.dayLabel(dayOffset) + ' — it\'s in "later this week" 🎉');
+      },
+
+      toastShown: !!S.toast,
+      toastText: S.toast
+    };
+  }
+
+  obNextFn() {
+    if (this.state.obStep === 1) {
+      if (!this.state.obFirst.trim()) { this.toast('tell us your first name 🙂'); return; }
+      const digits = this.state.obPhone.replace(/\D/g, '');
+      if (digits.length < 7) { this.toast('add a valid phone number 📱'); return; }
+    }
+    this.setState({ obStep: Math.min(2, this.state.obStep + 1) });
+  }
+  doInvite() {
+    const q = this.state.friendQuery.trim();
+    const digits = q.replace(/\D/g, '');
+    if (digits.length < 7) { this.toast('enter a phone number to invite 📱'); return; }
+    this.toast('invite texted to ' + q + ' ✉️');
+    this.setState({ friendQuery: '' });
+  }
+  doSearch() {
+    const q = this.state.contactQuery.trim();
+    if (!q) { this.toast('type a name to search 🙂'); return; }
+    this.toast('searching contacts for "' + q + '"…');
+    this.setState({ contactQuery: '' });
+  }
+}
+
+</script>
+</body>
+</html>
