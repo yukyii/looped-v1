@@ -6,6 +6,22 @@ const ACCENT = '#ff8a5c';
 const STORAGE_KEY = 'looped_state';
 const LEGACY_STORAGE_KEY = 'tether_state';
 
+// Accept exactly one emoji. Anything else — a letter, a digit, punctuation, or
+// more than one character — returns '' so the custom-emoji field stays empty.
+function singleEmoji(value) {
+  const str = (value || '').trim();
+  if (!str) return '';
+  let graphemes;
+  try {
+    graphemes = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(str)].map(s => s.segment);
+  } catch (e) {
+    graphemes = Array.from(str);
+  }
+  if (graphemes.length !== 1) return '';
+  const g = graphemes[0];
+  return (/\p{Extended_Pictographic}/u.test(g) || /\p{Regional_Indicator}/u.test(g)) ? g : '';
+}
+
 function initialState() {
   return {
     view: 'today',
@@ -372,6 +388,17 @@ export function useLoopedApp() {
     border: S.cEmoji === e ? ACCENT : 'rgba(58,44,40,.15)',
     pick: () => setState({ cEmoji: S.cEmoji === e ? '' : e })
   }));
+  // the custom slot is "active" only when the chosen emoji isn't one of the presets
+  const customEmojiActive = !!S.cEmoji && !emojis.includes(S.cEmoji);
+  const customEmoji = {
+    value: customEmojiActive ? S.cEmoji : '',
+    active: customEmojiActive,
+    // reject non-emoji / multi-emoji input; don't clobber a chosen preset on a bad entry
+    set: (e) => {
+      const em = singleEmoji(e.target.value);
+      setState(prev => (!em && prev.cEmoji && emojis.includes(prev.cEmoji)) ? {} : { cEmoji: em });
+    }
+  };
   const dateOptions = [0, 1, 2, 3, 4, 5].map(off => {
     const dd = new Date(); dd.setDate(dd.getDate() + off);
     const wd = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][dd.getDay()];
