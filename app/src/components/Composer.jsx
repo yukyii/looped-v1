@@ -15,17 +15,36 @@ const textInputStyle = {
   padding: '12px 15px', font: '600 14px Karla,sans-serif', color: '#3a2c28'
 };
 
-export default function Composer({ composer, accent }) {
+export default function Composer({ composer, accent, isMobile }) {
   if (!composer.open) return null;
+  const panelStyle = isMobile
+    ? { width: '100%', maxWidth: '100%', maxHeight: '92vh', overflowY: 'auto', boxSizing: 'border-box', background: 'rgba(255,251,246,.97)', borderTop: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)', borderRadius: '24px 24px 0 0', padding: '12px 20px 24px', animation: 'loopSheetUp .32s cubic-bezier(.2,.8,.2,1)' }
+    : { width: 480, background: 'rgba(255,251,246,.92)', border: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)', borderRadius: 22, padding: '30px 32px', animation: 'loopPop .35s ease' };
   return (
-    <div onClick={composer.close} style={{ position: 'fixed', inset: 0, background: 'rgba(58,44,40,.25)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 55 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: 480, background: 'rgba(255,251,246,.92)', border: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)', borderRadius: 22, padding: '30px 32px', animation: 'loopPop .35s ease' }}>
+    <div onClick={composer.close} style={{ position: 'fixed', inset: 0, background: 'rgba(58,44,40,.25)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', zIndex: 55 }}>
+      <div onClick={(e) => e.stopPropagation()} style={panelStyle}>
+        {isMobile && <div style={{ width: 42, height: 5, borderRadius: 999, background: 'rgba(58,44,40,.2)', margin: '2px auto 14px' }} />}
         <div style={{ font: '800 21px Nunito,sans-serif' }}>what are you up to?</div>
         <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'nowrap' }}>
           {composer.emojiChips.map((em, i) => (
             <button key={i} onClick={em.pick} style={{ flex: 1, minWidth: 0, cursor: 'pointer', border: '1.5px solid ' + em.border, background: em.bg, fontSize: 16, padding: '7px 0', borderRadius: 10 }}>{em.char}</button>
           ))}
+          <input
+            value={composer.customEmoji.value}
+            onChange={composer.customEmoji.set}
+            size={1}
+            inputMode="text"
+            aria-label="pick your own emoji"
+            placeholder="😀"
+            style={{
+              flex: 1, minWidth: 0, width: 0, boxSizing: 'border-box', textAlign: 'center', cursor: 'pointer',
+              border: '1.5px ' + (composer.customEmoji.active ? 'solid ' + accent : 'dashed rgba(255,138,92,.7)'),
+              background: composer.customEmoji.active ? 'rgba(255,138,92,.2)' : 'rgba(255,138,92,.08)',
+              fontSize: 16, padding: '7px 0', borderRadius: 10, color: '#3a2c28'
+            }}
+          />
         </div>
+        <div style={{ font: '600 11px Karla,sans-serif', color: 'rgba(58,44,40,.5)', marginTop: 7 }}>tap 😀 to use any emoji from your keyboard</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
           <input value={composer.cTitle} onChange={composer.setCTitle} placeholder="grabbing boba, pickup soccer, library grind…" style={textInputStyle} />
           <input value={composer.cPlace} onChange={composer.setCPlace} placeholder="where?" style={textInputStyle} />

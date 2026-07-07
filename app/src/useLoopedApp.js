@@ -377,8 +377,8 @@ export function useLoopedApp() {
     setState({ obStep: Math.min(2, S.obStep + 1) });
   }
 
-  // composer options
-  const emojis = ['☕', '🏋️', '🎬', '🍜', '📚', '🚶', '🎮', '🧺', '🍦'];
+  // composer options — 8 preset emojis, then a "your own" slot for any emoji
+  const emojis = ['☕', '🏋️', '🎬', '🍜', '📚', '🚶', '🎮', '🧺'];
   const spotsOptions = [{ value: '0', label: 'open to everyone' }].concat(
     Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: (i + 1) + (i === 0 ? ' spot' : ' spots') }))
   );
@@ -640,7 +640,7 @@ export function useLoopedApp() {
       cDate: S.cDate, setCDate: (e) => setState({ cDate: e.target.value, cTime: '' }),
       cTime, setCTime: (e) => setState({ cTime: e.target.value }),
       cSpots: S.cSpots, setCSpots: (e) => setState({ cSpots: e.target.value }),
-      dateOptions, emojiChips, timeOptions, spotsOptions,
+      dateOptions, emojiChips, customEmoji, timeOptions, spotsOptions,
       postActivity
     },
 
