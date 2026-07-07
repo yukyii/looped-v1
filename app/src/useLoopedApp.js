@@ -102,10 +102,15 @@ export function useLoopedApp() {
       || futurePosts().find(a => a.id === id);
   }
 
-  // Notifications are generated from event data + timing:
-  //  · a friend posts a new event                         → posted ping
-  //  · event 24h / 1h out and still has vacancies          → vacancy reminder
-  //  · event you're attending starts in ~10 min            → head-out ping
+  // Notifications keep a STABLE position based on the event's own urgency —
+  // joining an event only updates its text/button in place, it never reorders
+  // the list. Positions shift only as time changes an event's urgency (e.g. it
+  // moves from "later today" up to "starting soon"), like a real feed.
+  //   sort 0  starting right now (head-out window)
+  //   sort 1  open spots, starts within the hour
+  //   sort 2  open spots, later today
+  //   sort 3  open spots, later this week
+  //   sort 4  everything else — posted, or full
   function buildPings() {
     const out = [];
     const today = allToday();
@@ -119,36 +124,42 @@ export function useLoopedApp() {
       const f = friendById(a.who);
       const base = { who: a.who, actId: a.id };
 
-      if (youIn && mins <= 10 && mins > -6) {
+      // position depends only on the event + timing, never on whether you joined
+      const imminent = !a.day && mins <= 10 && mins > -6;
+      const soon = !a.day && mins > 10 && mins <= 60;
+      const openSpots = !!a.spots && (a.day || mins > 10) && (a.spots - a.joined.length) > 0;
+      const sort = imminent ? 0
+        : (openSpots && soon) ? 1
+        : (openSpots && !a.day) ? 2
+        : (openSpots && a.day) ? 3
+        : 4;
+
+      // content reflects your join state, but leaves `sort` (position) untouched
+      if (youIn && imminent) {
         out.push({
-          ...base, sort: 0, unread: true, going: true,
+          ...base, sort, unread: true, going: true,
           text: a.what + ' ' + a.emoji + ' starts in ' + Math.max(1, Math.round(mins)) + ' min — head to ' + a.place + '!',
           when: 'just now'
         });
-        return;
-      }
-      if (youIn) {
+      } else if (youIn) {
         out.push({
-          ...base, sort: 4, unread: false, going: true,
+          ...base, sort, unread: false, going: true,
           text: 'going to ' + a.what + ' ' + a.emoji + (a.day ? ' on ' + a.day : ''),
           when: (a.day ? a.day + ' ' : 'today ') + fmtTime(a.hour)
         });
-        return;
-      }
-      if (a.spots && left > 0 && mins > 10) {
-        const soon = mins <= 60;
+      } else if (openSpots) {
         out.push({
-          ...base, sort: soon ? 1 : (a.day ? 3 : 2), unread: soon, action: "i'm in",
+          ...base, sort, unread: soon, action: "i'm in",
           text: a.what + ' ' + a.emoji + (a.day ? ' on ' + a.day : '') + (soon ? ' starts within the hour' : '') + ' — ' + left + (left === 1 ? ' spot' : ' spots') + (soon ? ' still open' : ' left, join before it fills'),
           when: (a.day ? a.day + ' ' : 'starts ') + fmtTime(a.hour)
         });
-        return;
+      } else {
+        out.push({
+          ...base, sort, unread: false, action: full ? null : "i'm in",
+          text: (f ? f.first.toLowerCase() : a.who) + ' posted ' + a.what + ' ' + a.emoji + (a.day ? ' for ' + a.day : '') + (full ? ' (full)' : ''),
+          when: a.postedAgo || 'recently'
+        });
       }
-      out.push({
-        ...base, sort: 5, unread: false, action: full ? null : "i'm in",
-        text: (f ? f.first.toLowerCase() : a.who) + ' posted ' + a.what + ' ' + a.emoji + (a.day ? ' for ' + a.day : '') + (full ? ' (full)' : ''),
-        when: a.postedAgo || 'recently'
-      });
     });
 
     out.sort((x, y) => x.sort - y.sort);
@@ -216,7 +227,7 @@ export function useLoopedApp() {
       toggleJoin: (e) => {
         e.stopPropagation();
         setState({ joins: { ...S.joins, [a.id]: !youIn } });
-        toast(!youIn ? 'going — ' + whoName + ' will be stoked 🎉' : 'no worries, backed out quietly');
+        toast(!youIn ? 'going — ' + whoName + ' will be stoked 🎉' : 'told ' + whoName + " you can't make it");
       },
       showCancel: !!a.isYours,
       cancel: (e) => {
@@ -227,21 +238,32 @@ export function useLoopedApp() {
     };
   });
 
-  const edges = [[0, 12], [12, 17], [17, 21], [21, 25]];
-  const buckets = edges.map(([lo, hi]) => {
-    const items = acts.filter(a => a.hour >= lo && a.hour < hi).sort((x, y) => x.hour - y.hour);
-    return { items, empty: items.length === 0 };
+  // the board's day runs 6am → 6am, so late-night plans read as the tail of
+  // tonight. rel() maps a clock hour onto that cycle: 0 = 6am … 15 = 9pm …
+  // ~21 = 3am … 24 = 6am again. "night" therefore absorbs the small hours.
+  const DAY_START = 6;
+  const rel = (h) => (((h - DAY_START) % 24) + 24) % 24;
+  const periods = [
+    { label: 'morning', range: '6am–12pm', lo: 0,  hi: 6 },
+    { label: 'midday',  range: '12–5pm',   lo: 6,  hi: 11 },
+    { label: 'evening', range: '5–9pm',    lo: 11, hi: 15 },
+    { label: 'night',   range: '9pm–late', lo: 15, hi: 24 }
+  ];
+  const nowRel = rel(now);
+  const buckets = periods.map(p => {
+    const items = acts
+      .filter(a => { const r = rel(a.hour); return r >= p.lo && r < p.hi; })
+      .sort((x, y) => rel(x.hour) - rel(y.hour));
+    return { items, empty: items.length === 0, label: p.label, range: p.range, active: nowRel >= p.lo && nowRel < p.hi };
   });
 
-  const segs = [['8 am', 8, 12], ['noon', 12, 17], ['5 pm', 17, 21], ['9 pm', 21, 25]];
-  const axis = segs.map(([label, lo, hi]) => {
-    const active = now >= lo && now < hi;
-    return {
-      label: active ? label + ' ●' : label,
-      borderTop: active ? '2px solid rgba(58,44,40,.55)' : '2px dotted rgba(58,44,40,.3)',
-      color: active ? '#3a2c28' : 'rgba(58,44,40,.5)'
-    };
-  });
+  // the "now" marker rides a full-width bar split into the four equal period
+  // segments, sitting proportionally through whichever period is live right now
+  const activeIdx = periods.findIndex(p => nowRel >= p.lo && nowRel < p.hi);
+  const safeIdx = activeIdx >= 0 ? activeIdx : periods.length - 1;
+  const activeP = periods[safeIdx];
+  const within = Math.min(1, Math.max(0, (nowRel - activeP.lo) / (activeP.hi - activeP.lo)));
+  const nowPct = ((safeIdx + within) / periods.length) * 100;
 
   const liveActs = acts.filter(a => a.opacity === 1 && !a.isYours);
   const subline = liveActs.length
@@ -297,7 +319,25 @@ export function useLoopedApp() {
     };
   });
 
-  const friendCards = friends().map(f => ({ ...f, initial: f.first[0].toUpperCase() }));
+  // enrich each friend with their live status for the orbit:
+  //  · outNow   → they have an activity happening right now
+  //  · activity → the event to surface (live one, else their next today)
+  const friendsToday = allToday().filter(a => !a.isYours);
+  function friendLiveInfo(id) {
+    const theirs = friendsToday.filter(a => a.who === id);
+    const live = theirs.find(a => status(a) === 'now');
+    const next = theirs.filter(a => status(a) === 'open').sort((x, y) => x.hour - y.hour)[0];
+    const show = live || next;
+    return {
+      outNow: !!live,
+      activity: show ? { emoji: show.emoji, what: show.what, hour: show.hour, place: show.place } : null
+    };
+  }
+  const friendCards = friends().map(f => {
+    const info = friendLiveInfo(f.id);
+    return { ...f, initial: f.first[0].toUpperCase(), outNow: info.outNow, activity: info.activity };
+  });
+  const outNowCount = friendCards.filter(f => f.outNow).length;
 
   // onboarding
   const obFriendsList = friends().slice(0, 4).map(f => {
@@ -462,7 +502,7 @@ export function useLoopedApp() {
           return;
         }
         setState({ joins: { ...S.joins, [a.id]: !youIn } });
-        toast(!youIn ? 'going — ' + whoName + ' will be stoked 🎉' : 'no worries, backed out quietly');
+        toast(!youIn ? 'going — ' + whoName + ' will be stoked 🎉' : 'told ' + whoName + " you can't make it");
       },
       cantMake: () => {
         const patch = { detailId: null };
@@ -511,7 +551,7 @@ export function useLoopedApp() {
     },
 
     today: {
-      greeting, subline, axis, buckets, weekItems,
+      greeting, subline, buckets, weekItems, nowPct,
       openComposer: () => setState({ composerOpen: true })
     },
 
@@ -521,7 +561,9 @@ export function useLoopedApp() {
     },
 
     friends: {
-      countLine: friends().length + ' friends on looped · ' + liveActs.length + ' out right now',
+      countLine: friends().length + ' friends on looped · ' + outNowCount + ' out right now',
+      outNowCount,
+      yourInitial: (name[0] || 'y').toUpperCase(),
       query: S.friendQuery,
       setQuery: (e) => setState({ friendQuery: e.target.value }),
       inviteKeyDown: (e) => { if (e.key === 'Enter') doInvite(); },

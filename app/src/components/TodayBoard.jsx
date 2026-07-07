@@ -4,17 +4,26 @@ export default function TodayBoard({ today, accent }) {
       <div style={{ font: '800 32px/1.2 Nunito,sans-serif', letterSpacing: '-.01em' }}>{today.greeting}</div>
       <div style={{ font: '15px Karla,sans-serif', color: 'rgba(58,44,40,.6)', marginTop: 6 }}>{today.subline}</div>
 
-      {/* timeline axis */}
-      <div style={{ marginTop: 26, display: 'flex', font: '600 11px Karla,sans-serif', letterSpacing: '.06em', color: 'rgba(58,44,40,.5)' }}>
-        {today.axis.map((seg, i) => (
-          <div key={i} style={{ flex: 1, borderTop: seg.borderTop, position: 'relative', paddingTop: 7 }}>
-            <span style={{ color: seg.color }}>{seg.label}</span>
+      {/* timeline: parts of day + a live "now" marker on a full-day bar */}
+      <div style={{ marginTop: 26, display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 14 }}>
+        {today.buckets.map((b, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2, opacity: b.active ? 1 : 0.5 }}>
+            <span style={{ font: (b.active ? '800' : '700') + ' 12.5px Nunito,sans-serif', color: '#3a2c28', letterSpacing: '.01em' }}>{b.label}</span>
+            <span style={{ font: '600 10.5px Karla,sans-serif', letterSpacing: '.05em', color: 'rgba(58,44,40,.5)' }}>{b.range}</span>
           </div>
         ))}
       </div>
 
+      {/* now marker */}
+      <div style={{ position: 'relative', height: 10, marginTop: 12 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, borderRadius: 999, background: 'rgba(58,44,40,.1)' }}>
+          <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: today.nowPct + '%', background: 'rgba(58,44,40,.26)', borderRadius: 999 }} />
+        </div>
+        <div style={{ position: 'absolute', top: -3, left: today.nowPct + '%', transform: 'translateX(-50%)', width: 12, height: 12, borderRadius: '50%', background: accent, border: '2.5px solid #fff', boxShadow: '0 2px 6px rgba(255,138,92,.55)' }} />
+      </div>
+
       {/* board */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 14, marginTop: 20, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 14, marginTop: 14, alignItems: 'start' }}>
         {today.buckets.map((col, ci) => (
           <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 120 }}>
             {col.items.map(item => (

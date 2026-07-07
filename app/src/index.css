@@ -39,3 +39,51 @@ input:focus, select:focus {
 .looped-card:hover, .looped-hover:hover {
   border-color: rgba(58,44,40,.3) !important;
 }
+
+/* ---------- friends orbit ---------- */
+.orbit-node {
+  position: absolute;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.orbit-node .orbit-av {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  border: 2.5px solid rgba(255,255,255,.85);
+  box-shadow: 0 4px 12px rgba(58,44,40,.22);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.orbit-node:hover .orbit-av,
+.orbit-node:focus-visible .orbit-av {
+  transform: scale(1.09);
+}
+.orbit-node:focus-visible {
+  outline: none;
+}
+.orbit-node:focus-visible .orbit-av {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ff8a5c;
+}
+.orbit-node.selected .orbit-av {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #ff8a5c;
+}
+
+@keyframes orbitGlow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,255,255,.6), 0 4px 14px rgba(255,138,92,.4); }
+  50% { box-shadow: 0 0 0 3px rgba(255,255,255,.78), 0 6px 22px rgba(255,138,92,.65); }
+}
+.orbit-av.out {
+  animation: orbitGlow 2.8s ease infinite;
+}
+
+@keyframes loopSheet {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-av.out { animation: none; }
+}
