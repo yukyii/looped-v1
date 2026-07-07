@@ -1,10 +1,11 @@
-export default function Toast({ toast }) {
+export default function Toast({ toast, isMobile }) {
   if (!toast.shown) return null;
   return (
     <div style={{
-      position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+      position: 'fixed', bottom: isMobile ? 84 : 28, left: '50%', transform: 'translateX(-50%)',
       background: 'rgba(58,44,40,.92)', color: '#fff3e8', font: '700 13.5px Karla,sans-serif',
-      padding: '12px 22px', borderRadius: 999, animation: 'loopToast .3s ease', zIndex: 60
+      padding: '12px 22px', borderRadius: 999, animation: 'loopToast .3s ease', zIndex: 60,
+      maxWidth: 'calc(100vw - 32px)', textAlign: 'center'
     }}>
       {toast.text}
     </div>

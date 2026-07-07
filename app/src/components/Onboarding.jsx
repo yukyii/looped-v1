@@ -1,10 +1,14 @@
-export default function Onboarding({ ob, accent }) {
+export default function Onboarding({ ob, accent, isMobile }) {
+  const cardStyle = {
+    background: 'rgba(255,255,255,.5)', border: '1px solid rgba(255,255,255,.75)',
+    backdropFilter: 'blur(16px)', borderRadius: 24, animation: 'loopPop .45s ease',
+    ...(isMobile
+      ? { width: '100%', maxWidth: 480, boxSizing: 'border-box', padding: '30px 22px' }
+      : { width: 520, padding: '44px 48px' })
+  };
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-      <div style={{
-        width: 520, background: 'rgba(255,255,255,.5)', border: '1px solid rgba(255,255,255,.75)',
-        backdropFilter: 'blur(16px)', borderRadius: 24, padding: '44px 48px', animation: 'loopPop .45s ease'
-      }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? 18 : 40 }}>
+      <div style={cardStyle}>
 
         {ob.step1 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -12,11 +16,11 @@ export default function Onboarding({ ob, accent }) {
             <div style={{ font: '800 24px/1.25 Nunito,sans-serif' }}>your friends are already out there. tag along. ☀️</div>
             <div style={{ font: '15px/1.55 Karla,sans-serif', color: 'rgba(58,44,40,.65)' }}>let's set you up — this is how friends will find you.</div>
             <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <label style={{ font: '700 12.5px Karla,sans-serif', color: 'rgba(58,44,40,.6)' }}>first name</label>
                 <input value={ob.obFirst} onChange={ob.setObFirst} placeholder="jane" style={inputStyle} />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <label style={{ font: '700 12.5px Karla,sans-serif', color: 'rgba(58,44,40,.6)' }}>last name</label>
                 <input value={ob.obLast} onChange={ob.setObLast} placeholder="doe" style={inputStyle} />
               </div>
@@ -69,6 +73,7 @@ export default function Onboarding({ ob, accent }) {
 }
 
 const inputStyle = {
+  boxSizing: 'border-box', width: '100%', minWidth: 0,
   border: '1px solid rgba(58,44,40,.2)', background: 'rgba(255,255,255,.7)', borderRadius: 12,
   padding: '13px 16px', font: '600 15px Karla,sans-serif', color: '#3a2c28'
 };

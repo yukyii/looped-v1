@@ -1,21 +1,17 @@
-export default function EventDetail({ detail }) {
+export default function EventDetail({ detail, isMobile }) {
   if (!detail.open) return null;
+  const overlayStyle = {
+    position: 'fixed', inset: 0, background: 'rgba(58,44,40,.28)', backdropFilter: 'blur(3px)',
+    display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center',
+    padding: isMobile ? 0 : 40, zIndex: 50
+  };
+  const panelStyle = isMobile
+    ? { width: '100%', maxWidth: '100%', maxHeight: '92vh', overflowY: 'auto', boxSizing: 'border-box', background: 'rgba(255,251,246,.96)', borderTop: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)', borderRadius: '24px 24px 0 0', padding: '12px 22px 26px', animation: 'loopSheetUp .32s cubic-bezier(.2,.8,.2,1)' }
+    : { width: 480, maxWidth: '100%', maxHeight: '86vh', overflowY: 'auto', boxSizing: 'border-box', background: 'rgba(255,251,246,.94)', border: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)', borderRadius: 22, padding: '30px 34px', animation: 'loopPop .35s ease' };
   return (
-    <div
-      onClick={detail.close}
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(58,44,40,.28)', backdropFilter: 'blur(3px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40, zIndex: 50
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: 480, maxWidth: '100%', maxHeight: '86vh', overflowY: 'auto', boxSizing: 'border-box',
-          background: 'rgba(255,251,246,.94)', border: '1px solid rgba(255,255,255,.9)', backdropFilter: 'blur(20px)',
-          borderRadius: 22, padding: '30px 34px', animation: 'loopPop .35s ease'
-        }}
-      >
+    <div onClick={detail.close} style={overlayStyle}>
+      <div onClick={(e) => e.stopPropagation()} style={panelStyle}>
+        {isMobile && <div style={{ width: 42, height: 5, borderRadius: 999, background: 'rgba(58,44,40,.2)', margin: '2px auto 10px' }} />}
         <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-8px -10px 4px 0' }}>
           <button onClick={detail.close} style={{ cursor: 'pointer', border: 'none', background: 'rgba(58,44,40,.08)', color: '#3a2c28', font: '800 13px Nunito,sans-serif', width: 28, height: 28, borderRadius: '50%' }}>✕</button>
         </div>
